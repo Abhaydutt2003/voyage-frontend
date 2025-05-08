@@ -111,7 +111,7 @@ import {
   };
   
   // Add this constant at the end of the file
-  export const NAVBAR_HEIGHT = 52; // in pixels
+  export const NAVBAR_HEIGHT = 55; // in pixels
   
   // Test users for development
   export const testUsers = {
