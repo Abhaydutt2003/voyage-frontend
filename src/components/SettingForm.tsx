@@ -47,12 +47,6 @@ const SettingsForm = ({
           >
             <CustomFormField name="name" label="Name" disabled={!editMode} />
             <CustomFormField
-              name="email"
-              label="Email"
-              type="email"
-              disabled={!editMode}
-            />
-            <CustomFormField
               name="phoneNumber"
               label="Phone Number"
               disabled={!editMode}

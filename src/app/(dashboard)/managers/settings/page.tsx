@@ -14,7 +14,6 @@ const ManagerSettings = () => {
 
   const initialData = {
     name: authUser?.userInfo.name,
-    email: authUser?.userInfo.email,
     phoneNumber: authUser?.userInfo.phoneNumber,
   };
 
