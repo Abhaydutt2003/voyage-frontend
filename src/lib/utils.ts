@@ -1,3 +1,4 @@
+//TODO clean this file 
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
@@ -6,6 +7,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Converts "MyEnumValue" to "My Enum Value"
+ * @param str 
+ * @returns 
+ */
 export function formatEnumString(str: string) {
   return str.replace(/([A-Z])/g, " $1").trim();
 }
@@ -40,6 +46,12 @@ type MutationMessages = {
   error: string;
 };
 
+/**
+ * Wraps the mutation function with toast .
+ * @param mutationFn 
+ * @param messages 
+ * @returns 
+ */
 export const withToast = async <T>(
   mutationFn: Promise<T>,
   messages: Partial<MutationMessages>
