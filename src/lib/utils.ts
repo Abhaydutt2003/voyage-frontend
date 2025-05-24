@@ -83,3 +83,16 @@ export const createNewUserInDatabase = async (
   return createUserResponse;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const debounce = <T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+) => {
+  let timer: NodeJS.Timeout;
+  return (...args: Parameters<T>): void => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};

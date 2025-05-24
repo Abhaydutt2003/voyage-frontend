@@ -15,7 +15,15 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: [],
+  tagTypes: [
+    "Managers",
+    "Tenants",
+    "Properties",
+    "PropertyDetails",
+    "Leases",
+    "Payments",
+    "Applications",
+  ],
   endpoints: () => ({}), //Initially empty, endpoints will be injected.
 });
 
