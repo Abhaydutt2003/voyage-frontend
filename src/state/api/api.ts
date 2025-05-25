@@ -1,7 +1,18 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { fetchAuthSession } from "aws-amplify/auth";
 
-export const api = createApi({
+
+export const TAG_TYPES = [
+  "Managers",
+  "Tenants",
+  "Properties",
+  "PropertyDetails",
+  "Leases",
+  "Payments",
+  "Applications",
+] as const;
+
+export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
@@ -15,8 +26,6 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: [],
+  tagTypes: TAG_TYPES,
   endpoints: () => ({}), //Initially empty, endpoints will be injected.
 });
-
-export default api;
