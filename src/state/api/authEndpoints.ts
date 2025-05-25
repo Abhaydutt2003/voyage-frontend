@@ -1,7 +1,7 @@
 import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
-import baseApi from "./api";
 import { createNewUserInDatabase } from "@/lib/utils";
 import { Manager, Tenant } from "@/types/prismaTypes";
+import { baseApi } from "./api";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

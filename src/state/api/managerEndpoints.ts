@@ -1,6 +1,6 @@
-import { Manager } from "@/types/prismaTypes";
-import baseApi from "./api";
+import { Manager, Property } from "@/types/prismaTypes";
 import { withToast } from "@/lib/utils";
+import { baseApi } from "./api";
 
 const managerApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -22,7 +22,25 @@ const managerApi = baseApi.injectEndpoints({
         });
       },
     }),
+    getManagerProperties: build.query<Property[], string>({
+      query: (cognitoId) => `managers/${cognitoId}/properties`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Properties" as const, id })),
+              { type: "Properties", id: "LIST" },
+            ]
+          : [{ type: "Properties", id: "LIST" }],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          error: "Failed to load manager profile.",
+        });
+      },
+    }),
   }),
 });
 
-export const { useUpdateManagerSettingsMutation } = managerApi;
+export const {
+  useUpdateManagerSettingsMutation,
+  useGetManagerPropertiesQuery,
+} = managerApi;

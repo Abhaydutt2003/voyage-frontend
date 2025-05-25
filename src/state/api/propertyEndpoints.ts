@@ -1,7 +1,7 @@
-import baseApi from "./api";
 import { Property } from "@/types/prismaTypes";
 import { FiltersState } from "..";
 import { cleanParams, withToast } from "@/lib/utils";
+import { baseApi } from "./api";
 
 export const propertyApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -36,7 +36,6 @@ export const propertyApi = baseApi.injectEndpoints({
           : [{ type: "Properties", id: "LIST" }],
 
       async onQueryStarted(_, { queryFulfilled }) {
-        //TODO
         await withToast(queryFulfilled, {
           error: "Failed to fetch properties.",
         });
