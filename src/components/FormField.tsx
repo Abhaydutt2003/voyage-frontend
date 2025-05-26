@@ -2,8 +2,8 @@ import React from "react";
 import {
   ControllerRenderProps,
   FieldValues,
-  useFormContext,
   useFieldArray,
+  useFormContext,
 } from "react-hook-form";
 import { Textarea } from "./ui/textarea";
 import {
@@ -14,15 +14,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Switch } from "./ui/switch";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
-import { Edit } from "lucide-react";
+import { FormField, FormLabel } from "./ui/form";
 
 interface FormFieldProps {
   name: string;
@@ -49,8 +41,7 @@ interface FormFieldProps {
   isIcon?: boolean;
   initialValue?: string | number | boolean | string[];
 }
-
-const CustomFormField: React.FC<FormFieldProps> = ({
+export const CustomFormField: React.FC<FormFieldProps> = ({
   name,
   label,
   type = "text",
@@ -119,80 +110,14 @@ const CustomFormField: React.FC<FormFieldProps> = ({
             </FormLabel>
           </div>
         );
-      case "file":
-        return <>File</>;
-      case "number":
-        return (
-          <Input
-            type="number"
-            placeholder={placeholder}
-            {...field}
-            className={`border-gray-200 p-4 ${inputClassName}`}
-            disabled={disabled}
-          />
-        );
-      case "multi-input":
-        return (
-          <MultiInputField
-            name={name}
-            control={control}
-            placeholder={placeholder}
-            inputClassName={inputClassName}
-          />
-        );
-      default:
-        return (
-          <Input
-            type={type}
-            placeholder={placeholder}
-            {...field}
-            className={`border-gray-200 p-4 ${inputClassName}`}
-            disabled={disabled}
-          />
-        );
     }
   };
-  return (
-    <FormField
-      control={control}
-      name={name}
-      defaultValue={initialValue}
-      render={({ field }) => (
-        <FormItem
-          className={`${
-            type !== "switch" && "rounded-md"
-          } relative ${className}`}
-        >
-          {type !== "switch" && (
-            <div className="flex justify-between items-center">
-              <FormLabel className={`text-sm ${labelClassName}`}>
-                {label}
-              </FormLabel>
 
-              {!disabled &&
-                isIcon &&
-                type !== "file" &&
-                type !== "multi-input" && (
-                  <Edit className="size-4 text-customgreys-dirtyGrey" />
-                )}
-            </div>
-          )}
-          <FormControl>
-            {renderFormControl({
-              ...field,
-              value: field.value !== undefined ? field.value : initialValue,
-            })}
-          </FormControl>
-          <FormMessage className="text-red-400" />
-        </FormItem>
-      )}
-    />
-  );
+  return <></>;
 };
 
 interface MultiInputFieldProps {
   name: string;
-  //TODO
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: any;
   placeholder?: string;
@@ -205,20 +130,15 @@ const MultiInputField: React.FC<MultiInputFieldProps> = ({
   placeholder,
   inputClassName,
 }) => {
-  // const {fields,append,move} = useFieldArray({
-  //     control,
-  //     name
-  // });
-  // return(
-  //     <div className="space-y-2">
-  //         {fields.map((field,index)=>(
-  //             <div key={field.id} className="flex items-center space-x-2">
-
-  //             </div>
-  //         ))}
-  //     </div>
-  // );
-  return <></>;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name,
+  });
+  return (
+    <div className="space-y-2">
+      {fields.map((field, index) => (
+        <div key={field.id} className="flex items-center space-x-2"></div>
+      ))}
+    </div>
+  );
 };
-
-export default CustomFormField;

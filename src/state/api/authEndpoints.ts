@@ -54,3 +54,4 @@ export const authApi = baseApi.injectEndpoints({
 });
 
 export const { useGetAuthUserQuery } = authApi;
+// redux has its own cache for 60 seconds, and also amplify has its own cache locally, so this can be called anyhere in the application without the need to worry about a lot of api calls
