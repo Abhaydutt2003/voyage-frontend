@@ -1,9 +1,10 @@
+//TODO tinker around with this component
 import React from "react";
 import {
   ControllerRenderProps,
   FieldValues,
-  useFormContext,
   useFieldArray,
+  useFormContext,
 } from "react-hook-form";
 import { Textarea } from "./ui/textarea";
 import {
@@ -20,9 +21,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
-import { Edit } from "lucide-react";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Edit, Plus, X } from "lucide-react";
+import { Button } from "./ui/button";
+import { registerPlugin } from "filepond";
+import { FilePond } from "react-filepond";
+import "filepond/dist/filepond.min.css";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
 interface FormFieldProps {
   name: string;
@@ -49,8 +58,7 @@ interface FormFieldProps {
   isIcon?: boolean;
   initialValue?: string | number | boolean | string[];
 }
-
-const CustomFormField: React.FC<FormFieldProps> = ({
+export const CustomFormField: React.FC<FormFieldProps> = ({
   name,
   label,
   type = "text",
@@ -120,7 +128,18 @@ const CustomFormField: React.FC<FormFieldProps> = ({
           </div>
         );
       case "file":
-        return <>File</>;
+        return (
+          <FilePond
+            className={`${inputClassName}`}
+            onupdatefiles={(fileItems) => {
+              const files = fileItems.map((fileItem) => fileItem.file);
+              field.onChange(files);
+            }}
+            allowMultiple={true}
+            labelIdle={`Drag & Drop your images or <span class="filepond--label-action">Browse</span>`}
+            credits={false}
+          />
+        );
       case "number":
         return (
           <Input
@@ -152,6 +171,7 @@ const CustomFormField: React.FC<FormFieldProps> = ({
         );
     }
   };
+
   return (
     <FormField
       control={control}
@@ -192,7 +212,6 @@ const CustomFormField: React.FC<FormFieldProps> = ({
 
 interface MultiInputFieldProps {
   name: string;
-  //TODO
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: any;
   placeholder?: string;
@@ -205,20 +224,49 @@ const MultiInputField: React.FC<MultiInputFieldProps> = ({
   placeholder,
   inputClassName,
 }) => {
-  // const {fields,append,move} = useFieldArray({
-  //     control,
-  //     name
-  // });
-  // return(
-  //     <div className="space-y-2">
-  //         {fields.map((field,index)=>(
-  //             <div key={field.id} className="flex items-center space-x-2">
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name,
+  });
 
-  //             </div>
-  //         ))}
-  //     </div>
-  // );
-  return <></>;
+  return (
+    <div className="space-y-2">
+      {fields.map((field, index) => (
+        <div key={field.id} className="flex items-center space-x-2">
+          <FormField
+            control={control}
+            name={`${name}.${index}`}
+            render={({ field }) => (
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder={placeholder}
+                  className={`flex-1 border-none bg-customgreys-darkGrey p-4 ${inputClassName}`}
+                />
+              </FormControl>
+            )}
+          />
+          <Button
+            type="button"
+            onClick={() => remove(index)}
+            variant="ghost"
+            size="icon"
+            className="text-customgreys-dirtyGrey"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      ))}
+      <Button
+        type="button"
+        onClick={() => append("")}
+        variant="outline"
+        size="sm"
+        className="mt-2 text-customgreys-dirtyGrey"
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Add Item
+      </Button>
+    </div>
+  );
 };
-
-export default CustomFormField;

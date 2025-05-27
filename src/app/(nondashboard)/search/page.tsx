@@ -7,6 +7,8 @@ import { setFilters } from "@/state";
 import { NAVBAR_HEIGHT } from "@/lib/constants";
 import FiltersBar from "./FiltersBar";
 import FiltersFull from "./FiltersFull";
+import Map from "./Map";
+import Listings from "./Listings";
 
 const SearchPage = () => {
   const searchParams = useSearchParams();
@@ -32,7 +34,7 @@ const SearchPage = () => {
     dispatch(setFilters(cleanedFilters));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   //search params can change, but we want to only read the initial search parameters.
-  
+
   return (
     <div
       className="w-full mx-auto px-5 flex flex-col"
@@ -50,6 +52,10 @@ const SearchPage = () => {
           }`}
         >
           <FiltersFull />
+        </div>
+        <Map />
+        <div className="basis-4/12 overflow-y-auto">
+          <Listings />
         </div>
       </div>
     </div>

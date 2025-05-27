@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { BedBathSelector } from "./BedBathSelector";
 import { Label } from "@/components/ui/label";
 import useUpdateUrl from "@/hooks/useUpdateUrl";
+import { Amenity } from "@/types/prismaTypes";
 
 const FiltersFull = () => {
   const { updateURL } = useUpdateUrl();
@@ -40,7 +41,7 @@ const FiltersFull = () => {
     }
   };
 
-  const handleAmenityChange = (amenity: AmenityEnum) => {
+  const handleAmenityChange = (amenity: Amenity) => {
     setLocalFilters((prev) => ({
       ...prev,
       amenities: prev.amenities.includes(amenity)
@@ -197,11 +198,11 @@ const FiltersFull = () => {
                 key={amenity}
                 className={cn(
                   "flex items-center space-x-2 p-2 border rounded-lg hover:cursor-pointer",
-                  localFilters.amenities.includes(amenity as AmenityEnum)
+                  localFilters.amenities.includes(amenity as Amenity)
                     ? "border-black"
                     : "border-gray-200"
                 )}
-                onClick={() => handleAmenityChange(amenity as AmenityEnum)}
+                onClick={() => handleAmenityChange(amenity as Amenity)}
               >
                 <Icon className="w-5 h-5 hover:cursor-pointer" />
                 <Label className="hover:cursor-pointer">

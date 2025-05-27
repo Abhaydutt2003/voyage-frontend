@@ -1,57 +1,57 @@
 export enum Highlight {
-  HighSpeedInternetAccess = 'HighSpeedInternetAccess',
-  WasherDryer = 'WasherDryer',
-  AirConditioning = 'AirConditioning',
-  Heating = 'Heating',
-  SmokeFree = 'SmokeFree',
-  CableReady = 'CableReady',
-  SatelliteTV = 'SatelliteTV',
-  DoubleVanities = 'DoubleVanities',
-  TubShower = 'TubShower',
-  Intercom = 'Intercom',
-  SprinklerSystem = 'SprinklerSystem',
-  RecentlyRenovated = 'RecentlyRenovated',
-  CloseToTransit = 'CloseToTransit',
-  GreatView = 'GreatView',
-  QuietNeighborhood = 'QuietNeighborhood'
+  HighSpeedInternetAccess = "HighSpeedInternetAccess",
+  WasherDryer = "WasherDryer",
+  AirConditioning = "AirConditioning",
+  Heating = "Heating",
+  SmokeFree = "SmokeFree",
+  CableReady = "CableReady",
+  SatelliteTV = "SatelliteTV",
+  DoubleVanities = "DoubleVanities",
+  TubShower = "TubShower",
+  Intercom = "Intercom",
+  SprinklerSystem = "SprinklerSystem",
+  RecentlyRenovated = "RecentlyRenovated",
+  CloseToTransit = "CloseToTransit",
+  GreatView = "GreatView",
+  QuietNeighborhood = "QuietNeighborhood",
 }
 
 export enum Amenity {
-  WasherDryer = 'WasherDryer',
-  AirConditioning = 'AirConditioning',
-  Dishwasher = 'Dishwasher',
-  HighSpeedInternet = 'HighSpeedInternet',
-  HardwoodFloors = 'HardwoodFloors',
-  WalkInClosets = 'WalkInClosets',
-  Microwave = 'Microwave',
-  Refrigerator = 'Refrigerator',
-  Pool = 'Pool',
-  Gym = 'Gym',
-  Parking = 'Parking',
-  PetsAllowed = 'PetsAllowed',
-  WiFi = 'WiFi'
+  WasherDryer = "WasherDryer",
+  AirConditioning = "AirConditioning",
+  Dishwasher = "Dishwasher",
+  HighSpeedInternet = "HighSpeedInternet",
+  HardwoodFloors = "HardwoodFloors",
+  WalkInClosets = "WalkInClosets",
+  Microwave = "Microwave",
+  Refrigerator = "Refrigerator",
+  Pool = "Pool",
+  Gym = "Gym",
+  Parking = "Parking",
+  PetsAllowed = "PetsAllowed",
+  WiFi = "WiFi",
 }
 
 export enum PropertyType {
-  Rooms = 'Rooms',
-  Tinyhouse = 'Tinyhouse',
-  Apartment = 'Apartment',
-  Villa = 'Villa',
-  Townhouse = 'Townhouse',
-  Cottage = 'Cottage'
+  Rooms = "Rooms",
+  Tinyhouse = "Tinyhouse",
+  Apartment = "Apartment",
+  Villa = "Villa",
+  Townhouse = "Townhouse",
+  Cottage = "Cottage",
 }
 
 export enum ApplicationStatus {
-  Pending = 'Pending',
-  Denied = 'Denied',
-  Approved = 'Approved'
+  Pending = "Pending",
+  Denied = "Denied",
+  Approved = "Approved",
 }
 
 export enum PaymentStatus {
-  Pending = 'Pending',
-  Paid = 'Paid',
-  PartiallyPaid = 'PartiallyPaid',
-  Overdue = 'Overdue'
+  Pending = "Pending",
+  Paid = "Paid",
+  PartiallyPaid = "PartiallyPaid",
+  Overdue = "Overdue",
 }
 
 export interface Property {
@@ -75,7 +75,7 @@ export interface Property {
   numberOfReviews?: number;
   locationId: number;
   managerCognitoId: string;
-  location?: Location;
+  location: Location;
   manager?: Manager;
   leases?: Lease[];
   applications?: Application[];
@@ -117,7 +117,7 @@ export interface Location {
 
 export interface Application {
   id: number;
-  applicationDate: Date;
+  applicationDate: string;
   status: ApplicationStatus;
   propertyId: number;
   tenantCognitoId: string;
