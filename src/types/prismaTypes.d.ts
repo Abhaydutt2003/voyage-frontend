@@ -117,7 +117,7 @@ export interface Location {
 
 export interface Application {
   id: number;
-  applicationDate: Date;
+  applicationDate: string;
   status: ApplicationStatus;
   propertyId: number;
   tenantCognitoId: string;

@@ -1,3 +1,4 @@
+//TODO tinker around with this component
 import React from "react";
 import {
   ControllerRenderProps,
@@ -14,7 +15,23 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Switch } from "./ui/switch";
-import { FormField, FormLabel } from "./ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Edit, Plus, X } from "lucide-react";
+import { Button } from "./ui/button";
+import { registerPlugin } from "filepond";
+import { FilePond } from "react-filepond";
+import "filepond/dist/filepond.min.css";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
 interface FormFieldProps {
   name: string;
@@ -110,10 +127,87 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             </FormLabel>
           </div>
         );
+      case "file":
+        return (
+          <FilePond
+            className={`${inputClassName}`}
+            onupdatefiles={(fileItems) => {
+              const files = fileItems.map((fileItem) => fileItem.file);
+              field.onChange(files);
+            }}
+            allowMultiple={true}
+            labelIdle={`Drag & Drop your images or <span class="filepond--label-action">Browse</span>`}
+            credits={false}
+          />
+        );
+      case "number":
+        return (
+          <Input
+            type="number"
+            placeholder={placeholder}
+            {...field}
+            className={`border-gray-200 p-4 ${inputClassName}`}
+            disabled={disabled}
+          />
+        );
+      case "multi-input":
+        return (
+          <MultiInputField
+            name={name}
+            control={control}
+            placeholder={placeholder}
+            inputClassName={inputClassName}
+          />
+        );
+      default:
+        return (
+          <Input
+            type={type}
+            placeholder={placeholder}
+            {...field}
+            className={`border-gray-200 p-4 ${inputClassName}`}
+            disabled={disabled}
+          />
+        );
     }
   };
 
-  return <></>;
+  return (
+    <FormField
+      control={control}
+      name={name}
+      defaultValue={initialValue}
+      render={({ field }) => (
+        <FormItem
+          className={`${
+            type !== "switch" && "rounded-md"
+          } relative ${className}`}
+        >
+          {type !== "switch" && (
+            <div className="flex justify-between items-center">
+              <FormLabel className={`text-sm ${labelClassName}`}>
+                {label}
+              </FormLabel>
+
+              {!disabled &&
+                isIcon &&
+                type !== "file" &&
+                type !== "multi-input" && (
+                  <Edit className="size-4 text-customgreys-dirtyGrey" />
+                )}
+            </div>
+          )}
+          <FormControl>
+            {renderFormControl({
+              ...field,
+              value: field.value !== undefined ? field.value : initialValue,
+            })}
+          </FormControl>
+          <FormMessage className="text-red-400" />
+        </FormItem>
+      )}
+    />
+  );
 };
 
 interface MultiInputFieldProps {
@@ -134,11 +228,45 @@ const MultiInputField: React.FC<MultiInputFieldProps> = ({
     control,
     name,
   });
+
   return (
     <div className="space-y-2">
       {fields.map((field, index) => (
-        <div key={field.id} className="flex items-center space-x-2"></div>
+        <div key={field.id} className="flex items-center space-x-2">
+          <FormField
+            control={control}
+            name={`${name}.${index}`}
+            render={({ field }) => (
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder={placeholder}
+                  className={`flex-1 border-none bg-customgreys-darkGrey p-4 ${inputClassName}`}
+                />
+              </FormControl>
+            )}
+          />
+          <Button
+            type="button"
+            onClick={() => remove(index)}
+            variant="ghost"
+            size="icon"
+            className="text-customgreys-dirtyGrey"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       ))}
+      <Button
+        type="button"
+        onClick={() => append("")}
+        variant="outline"
+        size="sm"
+        className="mt-2 text-customgreys-dirtyGrey"
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Add Item
+      </Button>
     </div>
   );
 };

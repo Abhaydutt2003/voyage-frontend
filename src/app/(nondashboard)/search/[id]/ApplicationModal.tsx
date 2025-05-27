@@ -13,6 +13,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { CustomFormField } from "@/components/FormField";
+import { Button } from "@/components/ui/button";
 
 const ApplicationModal = ({
   isOpen,
@@ -60,6 +62,27 @@ const ApplicationModal = ({
             type="text"
             placeholder="Enter your full name"
           />
+          <CustomFormField
+            name="email"
+            label="Email"
+            type="email"
+            placeholder="Enter your email address"
+          />
+          <CustomFormField
+            name="phoneNumber"
+            label="Phone Number"
+            type="text"
+            placeholder="Enter your phone number"
+          />
+          <CustomFormField
+            name="message"
+            label="Message (Optional)"
+            type="textarea"
+            placeholder="Enter any additional information"
+          />
+          <Button type="submit" className="bg-primary-700 text-white w-full">
+            Submit Application
+          </Button>
         </form>
       </Form>
     </Dialog>
