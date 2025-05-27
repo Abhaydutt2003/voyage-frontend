@@ -13,7 +13,7 @@ export const leaseApi = baseApi.injectEndpoints({
         });
       },
     }),
-    getPropetyLeases: build.query<Lease[], number>({
+    getPropertyLeases: build.query<Lease[], number>({
       query: (propertyId) => `properties/${propertyId}/leases`,
       providesTags: (result) =>
         result
@@ -48,6 +48,6 @@ export const leaseApi = baseApi.injectEndpoints({
 
 export const {
   useGetLeasesQuery,
-  useGetPropetyLeasesQuery,
+  useGetPropertyLeasesQuery,
   useGetPaymentsQuery,
 } = leaseApi;
