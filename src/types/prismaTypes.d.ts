@@ -126,23 +126,24 @@ export interface Application {
   phoneNumber: string;
   message?: string;
   leaseId?: number;
-  property?: Property;
+  property: Property;
   tenant?: Tenant;
   lease?: Lease;
 }
 
 export interface Lease {
   id: number;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   rent: number;
   deposit: number;
   propertyId: number;
   tenantCognitoId: string;
-  property?: Property;
-  tenant?: Tenant;
+  property: Property;
+  tenant: Tenant;
   application?: Application;
-  payments?: Payment[];
+  payments: Payment[];
+  nextPaymentDate?: string;
 }
 
 export interface Payment {
