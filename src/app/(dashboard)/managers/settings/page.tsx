@@ -1,6 +1,7 @@
 "use client";
 
 import SettingsForm from "@/components/SettingForm";
+import { withToast } from "@/lib/utils";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
 import { useUpdateManagerSettingsMutation } from "@/state/api/managerEndpoints";
 
@@ -18,10 +19,15 @@ const ManagerSettings = () => {
   };
 
   const handleSubmit = async (data: typeof initialData) => {
-    await updateManager({
-      cognitoId: authUser?.cognitoInfo?.userId??"",
-      ...data,
-    });
+    await withToast(
+      updateManager({
+        cognitoId: authUser?.cognitoInfo?.userId ?? "",
+        ...data,
+      }),
+      {
+        error: "Failed to update settings.",
+      }
+    );
   };
 
   return (

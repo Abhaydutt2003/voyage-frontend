@@ -14,6 +14,8 @@ const PropertyOverview = ({ propertyId }: PropertyOverviewProps) => {
     return <>Property not Found</>;
   }
 
+  console.log(property.averageRating, property.numberOfReviews);
+
   return (
     <div>
       {/* Header */}
@@ -25,22 +27,24 @@ const PropertyOverview = ({ propertyId }: PropertyOverviewProps) => {
           </span>
         </div>
         <h1 className="text-3xl font-bold my-5">{property.name}</h1>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center ">
           <span className="flex items-center text-gray-500">
             <MapPin className="w-4 h-4 mr-1 text-gray-700" />
             {property.location?.city}, {property.location?.state},{" "}
             {property.location?.country}
           </span>
-          {property.averageRating && property.numberOfReviews && (
-            <div className="flex justify-between items-center gap-3">
-              <span className="flex items-center text-yellow-500">
-                <Star className="w-4 h-4 mr-1 fill-current" />
-                {property.averageRating?.toFixed(1)} ({property.numberOfReviews}{" "}
-                Reviews)
-              </span>
+          <div className="flex justify-between items-center gap-3">
+            <span className="flex items-center text-yellow-500">
+              <Star className="w-4 h-4 mr-1 fill-current" />
+              {property.averageRating?.toFixed(1)} ({property.numberOfReviews}{" "}
+              Reviews)
+            </span>
+            {property?.numberOfReviews && property?.numberOfReviews > 0 ? (
               <span className="text-green-600">Verified Listing</span>
-            </div>
-          )}
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
       </div>
       {/* Details */}

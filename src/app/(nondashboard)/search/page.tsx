@@ -5,10 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { setFilters } from "@/state";
 import { NAVBAR_HEIGHT } from "@/lib/constants";
-import FiltersBar from "./FiltersBar";
-import FiltersFull from "./FiltersFull";
-import Map from "./Map";
-import Listings from "./Listings";
+import FiltersBar from "@/components/search/FiltersBar";
+import FiltersFull from "@/components/search/FiltersFull";
+import Map from "@/components/search/Map";
+import Listings from "@/components/search/Listings";
 
 const SearchPage = () => {
   const searchParams = useSearchParams();
@@ -18,8 +18,10 @@ const SearchPage = () => {
   );
 
   useEffect(() => {
+    console.log(searchParams.size);
     const initialFilters = Array.from(searchParams.entries()).reduce(
       (acc: any, [key, value]) => {
+        console.log(key, value);
         if (key === "priceRange" || key === "squareFeet") {
           acc[key] = value.split(",").map((v) => (v === "" ? null : Number(v)));
         } else if (key === "coordinates") {
@@ -28,7 +30,8 @@ const SearchPage = () => {
           acc[key] = value === "any" ? null : value;
         }
         return acc;
-      }
+      },
+      {}
     );
     const cleanedFilters = cleanParams(initialFilters);
     dispatch(setFilters(cleanedFilters));

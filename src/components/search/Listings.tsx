@@ -57,7 +57,7 @@ const Listings = () => {
       <h3 className="text-sm px-4 font-bold">
         {properties.length}{" "}
         <span className="text-gray-700 font-normal">
-          Places in {filters.location}
+          Places near {filters.location}
         </span>
       </h3>
       <div className="flex">

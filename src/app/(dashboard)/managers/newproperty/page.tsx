@@ -10,10 +10,13 @@ import { Form } from "@/components/ui/form";
 import { CustomFormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import { Amenity, Highlight } from "@/types/prismaTypes";
+import { PropertyTypeEnum } from "@/lib/constants";
+import { useRouter } from "next/navigation";
 
 const NewProperty = () => {
   const [createProperty] = useCreatePropertyMutation();
   const { data: authUser } = useGetAuthUserQuery();
+  const router = useRouter();
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -26,8 +29,8 @@ const NewProperty = () => {
       isPetsAllowed: true,
       isParkingIncluded: true,
       photoUrls: [],
-      amenities: "",
-      highlights: "",
+      amenities: [],
+      highlights: [],
       beds: 1,
       baths: 1,
       squareFeet: 1000,
@@ -58,6 +61,7 @@ const NewProperty = () => {
     });
     formData.append("managerCognitoId", authUser.cognitoInfo.userId);
     await createProperty(formData);
+    router.push("/managers/properties");
   };
 
   return (
@@ -163,7 +167,7 @@ const NewProperty = () => {
                 <CustomFormField
                   name="amenities"
                   label="Amenities"
-                  type="select"
+                  type="multi-select"
                   options={Object.keys(Amenity).map((amenity) => ({
                     value: amenity,
                     label: amenity,
@@ -172,7 +176,7 @@ const NewProperty = () => {
                 <CustomFormField
                   name="highlights"
                   label="Highlights"
-                  type="select"
+                  type="multi-select"
                   options={Object.keys(Highlight).map((highlight) => ({
                     value: highlight,
                     label: highlight,
@@ -198,9 +202,7 @@ const NewProperty = () => {
 
             {/* Additional Information */}
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Additional Information
-              </h2>
+              <h2 className="text-lg font-semibold mb-4">Property Address</h2>
               <CustomFormField name="address" label="Address" />
               <div className="flex justify-between gap-4">
                 <CustomFormField name="city" label="City" className="w-full" />

@@ -1,4 +1,4 @@
-//TODO clean this file 
+//TODO clean this file
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
@@ -9,15 +9,15 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Converts "MyEnumValue" to "My Enum Value"
- * @param str 
- * @returns 
+ * @param str
+ * @returns
  */
 export function formatEnumString(str: string) {
   return str.replace(/([A-Z])/g, " $1").trim();
 }
 
 export function formatPriceValue(value: number | null, isMin: boolean) {
-  if (value === null || value === 0)
+  if (value === null || value === 0 || isNaN(value))
     return isMin ? "Any Min Price" : "Any Max Price";
   if (value >= 1000) {
     const kValue = value / 1000;
@@ -48,9 +48,9 @@ type MutationMessages = {
 
 /**
  * Wraps the mutation function with toast .
- * @param mutationFn 
- * @param messages 
- * @returns 
+ * @param mutationFn
+ * @param messages
+ * @returns
  */
 export const withToast = async <T>(
   mutationFn: Promise<T>,

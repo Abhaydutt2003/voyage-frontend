@@ -36,14 +36,6 @@ const ContactWidget = ({ onOpenModal }: ContactWidgetProps) => {
       >
         {authUser ? "Submit Application" : "Sign In to Apply"}
       </Button>
-
-      <hr className="my-4" />
-      <div className="text-sm">
-        <div className="text-primary-600 mb-1">Language: English, Bahasa.</div>
-        <div className="text-primary-600">
-          Open by appointment on Monday - Sunday
-        </div>
-      </div>
     </div>
   );
 };
