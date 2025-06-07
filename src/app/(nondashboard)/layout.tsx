@@ -10,6 +10,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     if (authUser) {
       const userRole = authUser.userRole?.toLowerCase();
