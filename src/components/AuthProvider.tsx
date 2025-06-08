@@ -10,6 +10,7 @@ import {
 import { Amplify } from "aws-amplify";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
+import RouteGaurd from "./RouteGaurd";
 
 Amplify.configure({
   Auth: {
@@ -147,8 +148,8 @@ const Auth = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isAuthPage, router, user]);
 
-  //Allow access to public pages
-  if (!isAuthPage && !isDashboardPage) {
+  //Allow access to public pages for non auth users.
+  if (!isAuthPage && !isDashboardPage && !user) {
     return <>{children}</>;
   }
 
@@ -159,7 +160,7 @@ const Auth = ({ children }: { children: React.ReactNode }) => {
         formFields={formFields}
         components={components}
       >
-        {() => <>{children}</>}
+        {() => <RouteGaurd>{children}</RouteGaurd>}
       </Authenticator>
     </div>
   );
