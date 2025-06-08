@@ -13,8 +13,21 @@ const RouteGaurd = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!isLoading && authUser) {
       const userRole = authUser.userRole?.toLowerCase();
+
+      // Manager trying to access tenant routes
+      if (userRole === "manager" && pathname.startsWith("/tenant")) {
+        router.push("/managers/properties", { scroll: false });
+        return;
+      }
+
+      // Tenant trying to access manager routes
+      if (userRole === "tenant" && pathname.startsWith("/managers")) {
+        router.push("/tenants/favorites", { scroll: false });
+        return;
+      }
+
+      // Manager trying to access search page
       if (pathname.startsWith("/search") && userRole === "manager") {
-        //manager does not have access to search page
         router.push("/managers/properties", { scroll: false });
       }
     }
@@ -24,12 +37,16 @@ const RouteGaurd = ({ children }: { children: React.ReactNode }) => {
     return <Loading />;
   }
 
-  // Only render children if we're not redirecting
-  if (
-    authUser?.userRole?.toLowerCase() === "manager" &&
-    pathname.startsWith("/search")
-  ) {
-    return <Loading />;
+  // Prevent rendering children if unauthorized access is attempted
+  if (authUser) {
+    const userRole = authUser.userRole?.toLowerCase();
+    if (
+      (userRole === "manager" &&
+        (pathname.startsWith("/tenant") || pathname.startsWith("/search"))) ||
+      (userRole === "tenant" && pathname.startsWith("/managers"))
+    ) {
+      return <Loading />;
+    }
   }
 
   return <>{children}</>;
