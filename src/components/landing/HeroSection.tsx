@@ -30,7 +30,8 @@ const HeroSection = () => {
       );
       const data = await response.json();
       if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].center;
+        console.log(data.features);
+        const [lat, lng] = data.features[0].center;
         dispatch(
           setFilters({
             location: trimmedQuery,
@@ -39,7 +40,7 @@ const HeroSection = () => {
         );
         const params = new URLSearchParams({
           location: trimmedQuery,
-          lat: lat.toString(),
+          lat: lat,
           lng: lng,
         });
         router.push(`/search?${params.toString()}`);

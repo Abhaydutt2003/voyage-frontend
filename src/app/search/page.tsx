@@ -14,6 +14,7 @@ import Navbar from "@/components/Navbar";
 const SearchPage = () => {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
+
   const isFiltersFullOpen = useAppSelector(
     (state) => state.global.isFiltersFullOpen
   );
@@ -21,7 +22,6 @@ const SearchPage = () => {
   useEffect(() => {
     const initialFilters = Array.from(searchParams.entries()).reduce(
       (acc: any, [key, value]) => {
-        console.log(key, value);
         if (key === "priceRange" || key === "squareFeet") {
           acc[key] = value.split(",").map((v) => (v === "" ? null : Number(v)));
         } else if (key === "coordinates") {
