@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  useDownloadAgreementMutation,
   useGetApplicationsQuery,
   useUpdateApplicationStatusMutation,
 } from "@/state/api/applicationEndpoints";
@@ -29,8 +30,21 @@ const Applications = () => {
     }
   );
   const [updateApplicationStatus] = useUpdateApplicationStatusMutation();
+  const [downloadAgreement] = useDownloadAgreementMutation();
+
   const handleStatusChange = async (id: number, status: string) => {
     await updateApplicationStatus({ id, status });
+  };
+
+  const handleAgreementDownload = async (applicationId: number) => {
+    if (!authUser) {
+      return;
+    }
+    await downloadAgreement({
+      id: applicationId,
+      userId: authUser?.cognitoInfo.userId,
+      userType: authUser?.userRole,
+    }).unwrap();
   };
 
   if (isLoading) return <Loading />;
@@ -126,6 +140,9 @@ const Applications = () => {
                         <button
                           className={`bg-white border border-gray-300 text-gray-700 py-2 px-4
                           rounded-md flex items-center justify-center hover:bg-primary-700 hover:text-primary-50`}
+                          onClick={() =>
+                            handleAgreementDownload(application.id)
+                          }
                         >
                           <Download className="w-5 h-5 mr-2" />
                           Download Agreement

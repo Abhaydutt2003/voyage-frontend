@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Edit, Plus, X } from "lucide-react";
+import { Edit, Plus, X, Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { registerPlugin } from "filepond";
 import { FilePond } from "react-filepond";
@@ -31,6 +31,18 @@ import "filepond/dist/filepond.min.css";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import { cn } from "@/lib/utils";
+import { Badge } from "./ui/badge";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "./ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { registerPlugin as filepondRegisterPlugin } from "filepond";
+
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
 interface FormFieldProps {
@@ -45,7 +57,8 @@ interface FormFieldProps {
     | "switch"
     | "password"
     | "file"
-    | "multi-input";
+    | "multi-input"
+    | "multi-select";
   placeholder?: string;
   options?: { value: string; label: string }[];
   accept?: string;
@@ -74,6 +87,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
   initialValue,
 }) => {
   const { control } = useFormContext();
+  const [open, setOpen] = React.useState(false);
 
   const renderFormControl = (
     field: ControllerRenderProps<FieldValues, string>
@@ -107,7 +121,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
                   value={option.value}
                   className={`cursor-pointer hover:!bg-gray-100 hover:!text-customgreys-darkGrey`}
                 >
-                  {option.label}
+                  {option.label.replace(/([A-Z])/g, " $1").trim()}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -158,6 +172,101 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             placeholder={placeholder}
             inputClassName={inputClassName}
           />
+        );
+      case "multi-select":
+        return (
+          <div className="space-y-2">
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className={`w-full justify-between border-gray-200 p-4 ${inputClassName}`}
+                >
+                  {field.value?.length > 0
+                    ? `${field.value.length} selected`
+                    : placeholder || "Select items..."}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search..." />
+                  <CommandEmpty>No items found.</CommandEmpty>
+                  <CommandGroup>
+                    {options?.map((option) => {
+                      const isSelected = field.value?.includes(option.value);
+                      return (
+                        <CommandItem
+                          key={option.value}
+                          onSelect={() => {
+                            const currentValue = field.value || [];
+                            const newValue = isSelected
+                              ? currentValue.filter(
+                                  (v: string) => v !== option.value
+                                )
+                              : [...currentValue, option.value];
+                            field.onChange(newValue);
+                          }}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className={cn(
+                                "w-4 h-4 border rounded flex items-center justify-center",
+                                isSelected
+                                  ? "bg-primary border-primary"
+                                  : "border-gray-300"
+                              )}
+                            >
+                              {isSelected && (
+                                <Check className="w-3 h-3 text-white" />
+                              )}
+                            </div>
+                            <span>
+                              {option.label.replace(/([A-Z])/g, " $1").trim()}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            {/* Selected items display */}
+            {field.value?.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {field.value.map((value: string) => {
+                  const option = options?.find((opt) => opt.value === value);
+                  return (
+                    <Badge
+                      key={value}
+                      variant="secondary"
+                      className="flex items-center gap-1 hover:bg-gray-100"
+                    >
+                      <span className="flex-1">
+                        {option?.label.replace(/([A-Z])/g, " $1").trim()}
+                      </span>
+                      <button
+                        type="button"
+                        className="ml-1 hover:bg-gray-200 rounded-full p-0.5 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const newValue = field.value.filter(
+                            (v: string) => v !== value
+                          );
+                          field.onChange(newValue);
+                        }}
+                      >
+                        <X className="w-3 h-3 " />
+                      </button>
+                    </Badge>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         );
       default:
         return (

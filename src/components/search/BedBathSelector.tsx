@@ -12,14 +12,14 @@ interface BedBathSelectorProps {
   value: string;
   onValueChange: (value: string) => void;
   type: "beds" | "baths";
-  className?: string; 
+  className?: string;
 }
 
 export const BedBathSelector: React.FC<BedBathSelectorProps> = ({
   value,
   onValueChange,
   type,
-  className, 
+  className,
 }) => {
   const isBeds = type === "beds";
   const placeholderText = isBeds ? "Beds" : "Baths";
@@ -34,7 +34,10 @@ export const BedBathSelector: React.FC<BedBathSelectorProps> = ({
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger
-        className={cn("w-26 rounded-xl border-primary-400", className)}
+        className={cn(
+          "min-w-fit w-26 rounded-xl border-primary-400 ",
+          className
+        )}
       >
         {" "}
         {/* Apply className */}

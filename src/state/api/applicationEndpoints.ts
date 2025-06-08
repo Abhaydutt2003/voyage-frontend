@@ -64,6 +64,44 @@ export const applicationApi = baseApi.injectEndpoints({
         });
       },
     }),
+    downloadAgreement: build.mutation<
+      string,
+      { id: number; userId: string; userType: string }
+    >({
+      queryFn: async (
+        { id, userId, userType },
+        _queryApi,
+        _extraOptions,
+        baseQuery
+      ) => {
+        const result = await baseQuery({
+          url: `applications/${id}/agreement?userCognitoId=${userId}&userType=${userType}`,
+          method: "GET",
+          responseHandler: (response) => response.blob(), // Function that returns a Promise<Blob>
+        });
+
+        const blob = result.data as Blob;
+
+        // Trigger download immediately
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `agreement-${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        return { data: "download initiated" }; //rtk query throws error when we try to return only undefined, so returning string for the sake of it.
+      },
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          success: "Agreement download initiated!",
+          error:
+            "Failed to download agreement. Please try again or contact support.",
+        });
+      },
+    }),
   }),
   overrideExisting: false,
 });
@@ -72,4 +110,5 @@ export const {
   useGetApplicationsQuery,
   useCreateApplicationMutation,
   useUpdateApplicationStatusMutation,
+  useDownloadAgreementMutation,
 } = applicationApi;

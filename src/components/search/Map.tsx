@@ -7,6 +7,8 @@ import mapboxgl from "mapbox-gl";
 import { Property } from "@/types/prismaTypes";
 import "mapbox-gl/dist/mapbox-gl.css";
 
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
+
 //TODO understand
 const Map = () => {
   const mapContainerRef = useRef(null);

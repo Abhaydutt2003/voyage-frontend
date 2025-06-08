@@ -1,3 +1,4 @@
+"use client";
 import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
@@ -18,7 +19,7 @@ const Properties = () => {
   if (error) return <div>Error loading manager properties</div>;
 
   return (
-    <div className="dashboard-container">
+    <div className="pt-8 pb-5 px-8">
       <Header
         title="My Properties"
         subtitle="View and manage your property listings"

@@ -2,7 +2,7 @@ import { SettingsFormData, settingsSchema } from "@/lib/schemas";
 import { useForm } from "react-hook-form";
 import { Form } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import CustomFormField from "./FormField";
+import { CustomFormField } from "./FormField";
 import { useState } from "react";
 import { Button } from "./ui/button";
 

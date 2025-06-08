@@ -1,8 +1,9 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 50 },
@@ -21,6 +22,19 @@ const itemVariants = {
 };
 
 const FeaturesSection = () => {
+  const { data: authUser } = useGetAuthUserQuery();
+  const [cardHrefs, setCardHrefs] = useState(["/search", "/signup", "/signup"]);
+
+  useEffect(() => {
+    if (authUser) {
+      setCardHrefs(() => {
+        return authUser.userRole?.toLowerCase() === "tenant"
+          ? ["/search", "/tenants/favorites", "/tenants/favorites"]
+          : ["/search", "/managers/properties", "/managers/properties"];
+      });
+    }
+  }, [authUser]);
+
   return (
     <motion.div
       initial="hidden"
@@ -34,7 +48,7 @@ const FeaturesSection = () => {
           variants={itemVariants}
           className=" text-3xl font-bold text-center mb-12 w-full sm:w-2/3 max-auto"
         >
-          Quickly find the home you want using our effective search filters!
+          Your Complete Rental Journey, Simplified
         </motion.h2>
         <div className=" grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
           {[0, 1, 2].map((index) => (
@@ -43,20 +57,22 @@ const FeaturesSection = () => {
                 imageSrc={`/landing-search${3 - index}.png`}
                 title={
                   [
-                    "Trustworthy and Verified Listings",
-                    "Browse Rental Listings with Ease",
-                    "Simplify Your Rental Search with Advanced",
+                    "Smart Property Search",
+                    "Streamlined Application Process",
+                    "Complete Rental Management",
                   ][index]
                 }
                 description={
                   [
-                    "Discover the best rental options with user reviews and ratings.",
-                    "Get access to user reviews and ratings for a better understanding of rental options.",
-                    "Find trustworthy and verified rental listings to ensure a hassle-free experience.",
+                    "Find your perfect rental with our advanced search filters and location-based property discovery.",
+                    "Submit applications seamlessly and track their status in real-time with our intuitive system.",
+                    "Manage your rental journey from application to lease with our comprehensive platform.",
                   ][index]
                 }
-                linkText={["Explore", "Search", "Discover"][index]}
-                linkHref={["/explore", "/search", "/discover"][index]}
+                linkText={
+                  ["Find Properties", "Apply Now", "Manage Rentals"][index]
+                }
+                linkHref={cardHrefs[index]}
               />
             </motion.div>
           ))}

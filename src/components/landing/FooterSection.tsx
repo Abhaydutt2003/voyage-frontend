@@ -15,19 +15,19 @@ const FooterSection = () => {
           <nav className="mb-4">
             <ul className="flex space-x-6">
               <li>
-                <Link href="/about">About Us</Link>
+                <Link href="/#">About Us</Link>
               </li>
               <li>
-                <Link href="/contact">Contact Us</Link>
+                <Link href="/#">Contact Us</Link>
               </li>
               <li>
-                <Link href="/faq">FAQ</Link>
+                <Link href="/#">FAQ</Link>
               </li>
               <li>
-                <Link href="/terms">Terms</Link>
+                <Link href="/#">Terms</Link>
               </li>
               <li>
-                <Link href="/privacy">Privacy</Link>
+                <Link href="/#">Privacy</Link>
               </li>
             </ul>
           </nav>
@@ -63,9 +63,9 @@ const FooterSection = () => {
         </div>
         <div className="mt-8 text-center text-sm text-gray-500 flex justify-center space-x-4">
           <span>© VOYAGE. All rights reserved.</span>
-          <Link href="/privacy">Privacy Policy</Link>
-          <Link href="/terms">Terms of Service</Link>
-          <Link href="/cookies">Cookie Policy</Link>
+          <Link href="/#">Privacy Policy</Link>
+          <Link href="/#">Terms of Service</Link>
+          <Link href="/#">Cookie Policy</Link>
         </div>
       </div>
     </footer>
