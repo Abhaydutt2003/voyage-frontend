@@ -7,7 +7,7 @@ import { initialState, setFilters } from "@/state";
 import { searchLocationsOnMapbox } from "@/state/api/mapbox";
 import { useAppSelector } from "@/state/redux";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { BedBathSelector } from "./BedBathSelector";
 import { Label } from "@/components/ui/label";
@@ -18,11 +18,15 @@ const FiltersFull = () => {
   const { updateURL } = useUpdateUrl();
   const dispatch = useDispatch();
 
-  const filters = useAppSelector((state) => state.global.filters);
+  const globalFiltersState = useAppSelector((state) => state.global.filters); //to get the global filter state.
   const [localFilters, setLocalFilters] = useState(initialState.filters);
   const isFiltersFullOpen = useAppSelector(
     (state) => state.global.isFiltersFullOpen
   );
+
+  useEffect(() => {
+    setLocalFilters(globalFiltersState);
+  }, [globalFiltersState]);
 
   const handleLocationSearch = async () => {
     try {
@@ -31,10 +35,12 @@ const FiltersFull = () => {
       );
       if (searchLocationData?.center) {
         const [lng, lat] = searchLocationData.center;
-        setLocalFilters((prev) => ({
-          ...prev,
-          coordinates: [lng, lat],
-        }));
+        dispatch(
+          setFilters({
+            location: localFilters.location,
+            coordinates: [lng, lat],
+          })
+        );
       }
     } catch (error) {
       console.error("Error search location:", error);
@@ -72,14 +78,14 @@ const FiltersFull = () => {
           <div className="flex items-center">
             <Input
               placeholder="Enter location"
-              value={filters.location}
-              onChange={(e) =>
+              value={localFilters.location}
+              onChange={(e) => {
                 setLocalFilters((prev) => ({
                   ...prev,
                   location: e.target.value,
-                }))
-              }
-              className="rounded-l-xl rounded-r-none border-r-0"
+                }));
+              }}
+              className="rounded-l-xl rounded-r-none border-r-0 "
             />
             <Button
               onClick={handleLocationSearch}
@@ -237,7 +243,7 @@ const FiltersFull = () => {
             onClick={handleSubmit}
             className="flex-1 bg-primary-700 text-white rounded-xl"
           >
-            APPLY
+            Apply
           </Button>
           <Button
             onClick={handleReset}

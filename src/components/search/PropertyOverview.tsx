@@ -14,8 +14,6 @@ const PropertyOverview = ({ propertyId }: PropertyOverviewProps) => {
     return <>Property not Found</>;
   }
 
-  console.log(property.averageRating, property.numberOfReviews);
-
   return (
     <div>
       {/* Header */}

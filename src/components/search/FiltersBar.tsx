@@ -13,7 +13,7 @@ import { setFilters, setViewMode, toggleFiltersFullOpen } from "@/state";
 import { searchLocationsOnMapbox } from "@/state/api/mapbox";
 import { useAppSelector } from "@/state/redux";
 import { Filter, Grid, List, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { BedBathSelector } from "./BedBathSelector";
 import useUpdateUrl from "@/hooks/useUpdateUrl";
@@ -59,6 +59,10 @@ const FiltersBar = () => {
 
   const [searchInput, setSearchInput] = useState(filters.location);
 
+  useEffect(() => {
+    setSearchInput(filters.location);
+  }, [filters.location]);
+
   const handleFilterChange = (
     key: string,
     value: string | [number, number],
@@ -72,7 +76,7 @@ const FiltersBar = () => {
         currentRange[index] = value === "any" ? null : Number(value);
       }
       newValue = currentRange;
-    } else if ((key = "coordinates")) {
+    } else if (key === "coordinates") {
       newValue =
         value === "any"
           ? [0, 0]
@@ -126,6 +130,11 @@ const FiltersBar = () => {
             placeholder="Search location"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleLocationSearch();
+              }
+            }}
             className="w-40 rounded-l-xl rounded-r-none border-primary-400 border-r-0"
           />
           <Button

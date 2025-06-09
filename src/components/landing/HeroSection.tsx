@@ -30,7 +30,6 @@ const HeroSection = () => {
       );
       const data = await response.json();
       if (data.features && data.features.length > 0) {
-        console.log(data.features);
         const [lat, lng] = data.features[0].center;
         dispatch(
           setFilters({

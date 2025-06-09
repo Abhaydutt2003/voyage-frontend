@@ -25,6 +25,7 @@ const Listings = () => {
   const viewMode = useAppSelector((state) => state.global.viewMode);
   const filters = useAppSelector((state) => state.global.filters);
 
+  // console.log("in listings", filters);
   const {
     data: properties,
     isLoading,
