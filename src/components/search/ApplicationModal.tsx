@@ -50,41 +50,52 @@ const ApplicationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white"></DialogContent>
-      <DialogHeader className="mb-4">
-        <DialogTitle>Submit Application for this Property</DialogTitle>
-      </DialogHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <CustomFormField
-            name="name"
-            label="Name"
-            type="text"
-            placeholder="Enter your full name"
-          />
-          <CustomFormField
-            name="email"
-            label="Email"
-            type="email"
-            placeholder="Enter your email address"
-          />
-          <CustomFormField
-            name="phoneNumber"
-            label="Phone Number"
-            type="text"
-            placeholder="Enter your phone number"
-          />
-          <CustomFormField
-            name="message"
-            label="Message (Optional)"
-            type="textarea"
-            placeholder="Enter any additional information"
-          />
-          <Button type="submit" className="bg-primary-700 text-white w-full">
-            Submit Application
-          </Button>
-        </form>
-      </Form>
+      <DialogContent className="bg-white">
+        <DialogHeader className="mb-4">
+          <DialogTitle>Submit Application for this Property</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-5 relative"
+          >
+            <CustomFormField
+              name="name"
+              label="Name"
+              type="text"
+              placeholder="Enter your full name"
+            />
+            {/* <Calendar
+              mode="single"
+              className="rounded-md border shadow-sm absolute z-99"
+              captionLayout="dropdown"
+            /> */}
+            <CustomFormField
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="Enter your email address"
+            />
+            <CustomFormField
+              name="phoneNumber"
+              label="Phone Number"
+              type="text"
+              placeholder="Enter your phone number"
+            />
+
+            <CustomFormField
+              name="message"
+              label="Message (Optional)"
+              type="textarea"
+              placeholder="Enter any additional information"
+            />
+
+            <Button type="submit" className="bg-primary-700 text-white w-full">
+              Submit Application
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
 };

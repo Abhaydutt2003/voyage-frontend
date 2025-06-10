@@ -44,7 +44,6 @@ export const authApi = baseApi.injectEndpoints({
           };
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-          console.error(error);
           return { error: error.message || "Could not fetch user data" };
         }
       },

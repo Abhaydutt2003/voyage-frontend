@@ -5,6 +5,7 @@ import { useGetPropertyQuery } from "@/state/api/propertyEndpoints";
 import { Amenity, Highlight } from "@/types/prismaTypes";
 import { HelpCircle } from "lucide-react";
 import React from "react";
+import Loading from "../Loading";
 
 const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
   const {
@@ -13,7 +14,7 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
     isLoading,
   } = useGetPropertyQuery(propertyId);
 
-  if (isLoading) return <>Loading...</>;
+  if (isLoading) return <Loading />;
   if (isError || !property) {
     return <>Property not Found</>;
   }

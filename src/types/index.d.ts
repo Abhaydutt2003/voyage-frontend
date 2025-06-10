@@ -36,6 +36,7 @@ declare global {
   }
 
   interface ContactWidgetProps {
+    propertyId: number;
     onOpenModal: () => void;
   }
 

@@ -1,12 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
+import { useGetPropertyQuery } from "@/state/api/propertyEndpoints";
 import { Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import Loading from "../Loading";
 
-const ContactWidget = ({ onOpenModal }: ContactWidgetProps) => {
+const ContactWidget = ({ propertyId, onOpenModal }: ContactWidgetProps) => {
   const { data: authUser } = useGetAuthUserQuery();
   const router = useRouter();
+
+  const {
+    data: property,
+    isError,
+    isLoading,
+  } = useGetPropertyQuery(propertyId);
 
   const handleButtonClick = () => {
     if (authUser) {
@@ -15,6 +23,9 @@ const ContactWidget = ({ onOpenModal }: ContactWidgetProps) => {
       router.push("/signin");
     }
   };
+
+  if (isLoading) return <Loading />;
+  if (isError) return <>Failed to fetch manager contact</>;
 
   return (
     <div className="bg-white border border-primary-200 rounded-2xl p-7 h-fit min-w-[300px]">
@@ -25,8 +36,11 @@ const ContactWidget = ({ onOpenModal }: ContactWidgetProps) => {
         </div>
         <div>
           <p>Contact This Property</p>
-          <div className="text-lg font-bold text-primary-800">
-            (424) 340-5574
+          <div
+            className="text-lg font-bold text-primary-800 cursor-pointer"
+            title="Manager phone number "
+          >
+            {property?.manager?.phoneNumber}
           </div>
         </div>
       </div>
