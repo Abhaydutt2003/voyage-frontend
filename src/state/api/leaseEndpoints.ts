@@ -43,6 +43,18 @@ export const leaseApi = baseApi.injectEndpoints({
         });
       },
     }),
+    getAcceptedLease: build.query<
+      Pick<Lease, "startDate" | "endDate">,
+      Pick<Lease, "propertyId">
+    >({
+      query: (params) => ({
+        url: "leases/getAcceptedLeases",
+        method: "GET",
+        params: {
+          propertyId: params.propertyId,
+        },
+      }),
+    }),
   }),
 });
 
@@ -50,4 +62,5 @@ export const {
   useGetLeasesQuery,
   useGetPropertyLeasesQuery,
   useGetPaymentsQuery,
+  useGetAcceptedLeaseQuery,
 } = leaseApi;

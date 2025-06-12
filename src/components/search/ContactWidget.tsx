@@ -38,7 +38,7 @@ const ContactWidget = ({ propertyId, onOpenModal }: ContactWidgetProps) => {
           <p>Contact This Property</p>
           <div
             className="text-lg font-bold text-primary-800 cursor-pointer"
-            title="Manager phone number "
+            title="Manager phone number"
           >
             {property?.manager?.phoneNumber}
           </div>

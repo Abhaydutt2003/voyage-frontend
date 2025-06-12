@@ -4,7 +4,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { ApplicationFormData, applicationSchema } from "@/lib/schemas";
 import { useCreateApplicationMutation } from "@/state/api/applicationEndpoints";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
@@ -15,6 +22,12 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { CustomFormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useGetAcceptedLeaseQuery } from "@/state/api/leaseEndpoints";
 
 const ApplicationModal = ({
   isOpen,
@@ -23,6 +36,20 @@ const ApplicationModal = ({
 }: ApplicationModalProps) => {
   const [createApplication] = useCreateApplicationMutation();
   const { data: authUser } = useGetAuthUserQuery();
+
+  const { data: leaseData } = useGetAcceptedLeaseQuery(
+    {
+      propertyId,
+    },
+    {
+      skip:
+        !authUser?.cognitoInfo.userId ||
+        typeof authUser.cognitoInfo.userId !== "string",
+    }
+  );
+
+  console.log(leaseData);
+
   const form = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
@@ -38,8 +65,13 @@ const ApplicationModal = ({
       toast.error("You must be logged in as a tenant to submit an application");
       return;
     }
-    await createApplication({
+    const formattedData = {
       ...data,
+      startDate: data.startDate.toISOString(),
+      endDate: data.endDate.toISOString(),
+    };
+    await createApplication({
+      ...formattedData,
       applicationDate: new Date().toISOString(),
       status: ApplicationStatus.Pending,
       propertyId: propertyId,
@@ -65,11 +97,7 @@ const ApplicationModal = ({
               type="text"
               placeholder="Enter your full name"
             />
-            {/* <Calendar
-              mode="single"
-              className="rounded-md border shadow-sm absolute z-99"
-              captionLayout="dropdown"
-            /> */}
+
             <CustomFormField
               name="email"
               label="Email"
@@ -82,6 +110,90 @@ const ApplicationModal = ({
               type="text"
               placeholder="Enter your phone number"
             />
+            <div className="flex flex-row gap-4">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col flex-1">
+                    <FormLabel>Start Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          // disabled={(date) =>
+                          //   date > new Date() || date < new Date("1900-01-01")
+                          // }
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col flex-1">
+                    <FormLabel>End Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          // disabled={(date) =>
+                          //   date > new Date() || date < new Date("1900-01-01")
+                          // }
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <CustomFormField
               name="message"
