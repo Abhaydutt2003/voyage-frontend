@@ -44,7 +44,7 @@ export const leaseApi = baseApi.injectEndpoints({
       },
     }),
     getAcceptedLease: build.query<
-      Pick<Lease, "startDate" | "endDate">,
+      Pick<Lease, "startDate" | "endDate">[],
       Pick<Lease, "propertyId">
     >({
       query: (params) => ({

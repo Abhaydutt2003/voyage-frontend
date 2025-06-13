@@ -72,8 +72,17 @@ export const withToast = async <T>(
     if (success) toast.success(success);
     return result;
   } catch (err) {
-    if (error) toast.error(error);
-    throw err;
+    let errorMessage = error; //default message
+    if (err && typeof err === "object" && "error" in err) {
+      const { error } = err;
+      if (error && typeof error === "object" && "status" in error) {
+        const { status } = error;
+        if (conditionalErrors && conditionalErrors[status as number]) {
+          errorMessage = conditionalErrors[status as number];
+        }
+      }
+    }
+    if (errorMessage) toast.error(errorMessage);
   }
 };
 

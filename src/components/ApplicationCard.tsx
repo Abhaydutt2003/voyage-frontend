@@ -11,6 +11,10 @@ const ApplicationCard = ({
     application.property.photoUrls?.[0] || "/placeholder.jpg"
   );
 
+  if (application.status === "Pending") {
+    console.log(application);
+  }
+
   const statusColor =
     application.status === "Approved"
       ? "bg-green-500"
@@ -76,18 +80,18 @@ const ApplicationCard = ({
           )}
           {application?.lease?.endDate && (
             <div className="flex justify-between">
-              <span className="text-gray-500">Start Date:</span>{" "}
+              <span className="text-gray-500">End Date:</span>{" "}
               {new Date(application.lease?.endDate).toLocaleDateString()}
             </div>
           )}
-          {application.lease?.nextPaymentDate && (
+          {/* {application.lease?.nextPaymentDate && (
             <div className="flex justify-between">
               <span className="text-gray-500">Next Payment:</span>{" "}
               {new Date(
                 application.lease?.nextPaymentDate
               ).toLocaleDateString()}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Divider - visible only on desktop */}

@@ -61,6 +61,9 @@ export const applicationApi = baseApi.injectEndpoints({
         await withToast(queryFulfilled, {
           success: "Application created successfully!",
           error: "Failed to create applications.",
+          conditionalErrors: {
+            409: "You already have an application overlapping with these dates!",
+          },
         });
       },
     }),
