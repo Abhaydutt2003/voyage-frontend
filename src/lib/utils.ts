@@ -47,6 +47,13 @@ type MutationMessages = {
 };
 
 /**
+ * Defines the structure for conditional error messages based on status codes.
+ */
+type ConditionalErrorMessages = {
+  [statusCode: number]: string;
+};
+
+/**
  * Wraps the mutation function with toast .
  * @param mutationFn
  * @param messages
@@ -54,17 +61,28 @@ type MutationMessages = {
  */
 export const withToast = async <T>(
   mutationFn: Promise<T>,
-  messages: Partial<MutationMessages>
+  messages: Partial<MutationMessages> & {
+    conditionalErrors?: ConditionalErrorMessages;
+  }
 ) => {
-  const { success, error } = messages;
+  const { success, error, conditionalErrors } = messages;
 
   try {
     const result = await mutationFn;
     if (success) toast.success(success);
     return result;
   } catch (err) {
-    if (error) toast.error(error);
-    throw err;
+    let errorMessage = error; //default message
+    if (err && typeof err === "object" && "error" in err) {
+      const { error } = err;
+      if (error && typeof error === "object" && "status" in error) {
+        const { status } = error;
+        if (conditionalErrors && conditionalErrors[status as number]) {
+          errorMessage = conditionalErrors[status as number];
+        }
+      }
+    }
+    if (errorMessage) toast.error(errorMessage);
   }
 };
 

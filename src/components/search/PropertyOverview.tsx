@@ -1,6 +1,7 @@
 import { useGetPropertyQuery } from "@/state/api/propertyEndpoints";
 import { MapPin, Star } from "lucide-react";
 import React from "react";
+import Loading from "../Loading";
 
 const PropertyOverview = ({ propertyId }: PropertyOverviewProps) => {
   const {
@@ -9,7 +10,7 @@ const PropertyOverview = ({ propertyId }: PropertyOverviewProps) => {
     isLoading,
   } = useGetPropertyQuery(propertyId);
 
-  if (isLoading) return <>Loading...</>;
+  if (isLoading) return <Loading />;
   if (isError || !property) {
     return <>Property not Found</>;
   }

@@ -9,7 +9,14 @@ import {
   useUpdateApplicationStatusMutation,
 } from "@/state/api/applicationEndpoints";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
-import { CircleCheckBig, Download, Hospital, File } from "lucide-react";
+import {
+  CircleCheckBig,
+  Download,
+  Hospital,
+  File,
+  CircleX,
+  CircleAlert,
+} from "lucide-react"; // Import new icons
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -105,8 +112,7 @@ const Applications = () => {
                           ).toLocaleDateString()}
                           .
                         </span>
-                        <CircleCheckBig className="w-5 h-5 mr-2 flex-shrink-0" />
-                        <span
+                        <div
                           className={`font-semibold ${
                             application.status === "Approved"
                               ? "text-green-800"
@@ -115,13 +121,27 @@ const Applications = () => {
                               : "text-yellow-800"
                           }`}
                         >
-                          {application.status === "Approved" &&
-                            "This application has been approved."}
-                          {application.status === "Denied" &&
-                            "This application has been denied."}
-                          {application.status === "Pending" &&
-                            "This application is pending review."}
-                        </span>
+                          <div className="flex items-center">
+                            {application.status === "Approved" && (
+                              <>
+                                <CircleCheckBig className="w-5 h-5 mr-2 flex-shrink-0" />
+                                <span>This application has been approved.</span>
+                              </>
+                            )}
+                            {application.status === "Denied" && (
+                              <>
+                                <CircleX className="w-5 h-5 mr-2 flex-shrink-0" />
+                                <span>This application has been denied.</span>
+                              </>
+                            )}
+                            {application.status === "Pending" && (
+                              <>
+                                <CircleAlert className="w-5 h-5 mr-2 flex-shrink-0" />
+                                <span>This application is pending review.</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
 

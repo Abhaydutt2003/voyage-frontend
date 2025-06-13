@@ -219,7 +219,7 @@ const FiltersFull = () => {
           </div>
         </div>
         {/* Available From */}
-        <div>
+        {/* <div>
           <h4 className="font-bold mb-2">Available From</h4>
           <Input
             type="date"
@@ -236,7 +236,7 @@ const FiltersFull = () => {
             }
             className="rounded-xl"
           />
-        </div>
+        </div> */}
         {/* Apply and Reset buttons */}
         <div className="flex gap-4 mt-6">
           <Button

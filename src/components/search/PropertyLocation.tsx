@@ -4,6 +4,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useGetPropertyQuery } from "@/state/api/propertyEndpoints";
 import { Compass, MapPin } from "lucide-react";
+import Loading from "../Loading";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
@@ -39,7 +40,7 @@ const PropertyLocation = ({ propertyId }: PropertyDetailsProps) => {
     return () => map.remove();
   }, [property, isError, isLoading]);
 
-  if (isLoading) return <>Loading...</>;
+  if (isLoading) return <Loading />;
   if (isError || !property) {
     return <>Property not Found</>;
   }

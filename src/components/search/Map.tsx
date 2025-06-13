@@ -13,7 +13,6 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 const Map = () => {
   const mapContainerRef = useRef(null);
   const filters = useAppSelector((state) => state.global.filters);
-  // console.log("in map", filters);
   const {
     data: properties,
     isLoading,
