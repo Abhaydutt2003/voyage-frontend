@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetPaymentsQuery } from "@/state/api/leaseEndpoints";
 import { useGetPropertyQuery } from "@/state/api/propertyEndpoints";
 import { useGetPropertyLeasesQuery } from "@/state/api/leaseEndpoints";
 import { ArrowDownToLine, ArrowLeft, Check, Download } from "lucide-react";
@@ -25,21 +24,12 @@ const PropertyTenants = () => {
     useGetPropertyQuery(propertyId);
   const { data: leases, isLoading: leasesLoading } =
     useGetPropertyLeasesQuery(propertyId);
-  const { data: payments, isLoading: paymentsLoading } =
-    useGetPaymentsQuery(propertyId);
 
   const getCurrentMonthPaymentStatus = (leaseId: number) => {
-    const currentDate = new Date();
-    const currentMonthPayment = payments?.find(
-      (payment) =>
-        payment.leaseId === leaseId &&
-        new Date(payment.dueDate).getMonth() === currentDate.getMonth() &&
-        new Date(payment.dueDate).getFullYear() === currentDate.getFullYear()
-    );
-    return currentMonthPayment?.paymentStatus || "Not Paid";
+    return "Not Paid";
   };
 
-  if (propertyLoading || leasesLoading || paymentsLoading) return <Loading />;
+  if (propertyLoading || leasesLoading) return <Loading />;
 
   return (
     <div className="pt-8 pb-5 px-8">

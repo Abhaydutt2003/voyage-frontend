@@ -47,13 +47,6 @@ export enum ApplicationStatus {
   Approved = "Approved",
 }
 
-export enum PaymentStatus {
-  Pending = "Pending",
-  Paid = "Paid",
-  PartiallyPaid = "PartiallyPaid",
-  Overdue = "Overdue",
-}
-
 export interface Property {
   id: number;
   name: string;
@@ -111,6 +104,7 @@ export interface Location {
   state: string;
   country: string;
   postalCode: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   coordinates: any; // Using 'any' for geography type as it's not directly mappable in TypeScript
   properties?: Property[];
 }
@@ -142,17 +136,6 @@ export interface Lease {
   property: Property;
   tenant: Tenant;
   application?: Application;
-  payments: Payment[];
   nextPaymentDate?: string;
-}
-
-export interface Payment {
-  id: number;
-  amountDue: number;
-  amountPaid: number;
-  dueDate: Date;
-  paymentDate: Date;
-  paymentStatus: PaymentStatus;
-  leaseId: number;
-  lease?: Lease;
+  paymentProof: string[];
 }
