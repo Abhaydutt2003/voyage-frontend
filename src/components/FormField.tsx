@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Edit, Plus, X, Check } from "lucide-react";
+import { Edit, Plus, X, Check, Info } from "lucide-react";
 import { Button } from "./ui/button";
 import { registerPlugin } from "filepond";
 import { FilePond } from "react-filepond";
@@ -41,7 +41,7 @@ import {
   CommandItem,
 } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { registerPlugin as filepondRegisterPlugin } from "filepond";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
@@ -152,6 +152,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             allowMultiple={true}
             labelIdle={`Drag & Drop your images or <span class="filepond--label-action">Browse</span>`}
             credits={false}
+            acceptedFileTypes={accept?.split(",") || []}
           />
         );
       case "number":
@@ -189,11 +190,11 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
                     : placeholder || "Select items..."}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
+              <PopoverContent className="w-full p-0 ">
                 <Command>
                   <CommandInput placeholder="Search..." />
                   <CommandEmpty>No items found.</CommandEmpty>
-                  <CommandGroup>
+                  <CommandGroup className=" max-h-36 overflow-y-auto">
                     {options?.map((option) => {
                       const isSelected = field.value?.includes(option.value);
                       return (
@@ -297,7 +298,19 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
               <FormLabel className={`text-sm ${labelClassName}`}>
                 {label}
               </FormLabel>
-
+              {label == "Payment Proof" && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className=" size-4" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      This is a hobby project, and the current focus is on core
+                      functionality rather than live payment integration.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
               {!disabled &&
                 isIcon &&
                 type !== "file" &&

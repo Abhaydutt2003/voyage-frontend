@@ -41,24 +41,31 @@ const ApplicationModal = ({
       toast.error("You must be logged in as a tenant to submit an application");
       return;
     }
-    const formattedData = {
-      ...data,
-      startDate: data.startDate.toISOString(),
-      endDate: data.endDate.toISOString(),
-    };
-    await createApplication({
-      ...formattedData,
-      applicationDate: new Date().toISOString(),
-      status: ApplicationStatus.Pending,
-      propertyId: propertyId,
-      tenantCognitoId: authUser.cognitoInfo.userId,
+    const formData = new FormData();
+    formData.append("startDate", data.startDate.toISOString());
+    formData.append("endDate", data.endDate.toISOString());
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "paymentProof") {
+        const files = value as File[];
+        files.forEach((file: File) => {
+          formData.append("paymentProof", file);
+        });
+      } else if (key !== "startDate" && key !== "endDate") {
+        formData.append(key, String(value));
+      }
     });
+    formData.append("applicationDate", new Date().toISOString());
+    formData.append("status", ApplicationStatus.Pending);
+    formData.append("propertyId", String(propertyId));
+    formData.append("tenantCognitoId", authUser.cognitoInfo.userId);
+    console.log(formData);
+    await createApplication(formData);
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white">
+      <DialogContent className="bg-white max-h-[90vh] overflow-y-auto">
         <DialogHeader className="mb-4">
           <DialogTitle>Submit Application for this Property</DialogTitle>
         </DialogHeader>
@@ -99,6 +106,12 @@ const ApplicationModal = ({
               label="Message (Optional)"
               type="textarea"
               placeholder="Enter any additional information"
+            />
+
+            <CustomFormField
+              name="paymentProof"
+              label="Payment Proof"
+              type="file"
             />
 
             <Button type="submit" className="bg-primary-700 text-white w-full">

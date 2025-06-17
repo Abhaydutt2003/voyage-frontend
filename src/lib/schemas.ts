@@ -38,6 +38,9 @@ export const applicationSchema = z.object({
   endDate: z.date({
     required_error: "End date is required",
   }),
+  paymentProof: z
+    .array(z.instanceof(File))
+    .min(1, "At least one photo is required"),
 });
 
 export type ApplicationFormData = z.infer<typeof applicationSchema>;

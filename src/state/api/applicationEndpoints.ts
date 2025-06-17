@@ -50,7 +50,8 @@ export const applicationApi = baseApi.injectEndpoints({
         });
       },
     }),
-    createApplication: build.mutation<Application, Partial<Application>>({
+    createApplication: build.mutation<Application, FormData>({
+      //need FormData to construct a req body that contains both file data and regular from data.
       query: (body) => ({
         url: `applications`,
         method: "POST",
@@ -92,9 +93,10 @@ export const applicationApi = baseApi.injectEndpoints({
         a.download = `agreement-${id}.pdf`;
         document.body.appendChild(a);
         a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
+        // a.remove();
 
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
         return { data: "download initiated" }; //rtk query throws error when we try to return only undefined, so returning string for the sake of it.
       },
       async onQueryStarted(_, { queryFulfilled }) {

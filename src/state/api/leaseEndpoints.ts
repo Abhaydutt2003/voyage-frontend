@@ -1,4 +1,4 @@
-import { Lease, Payment } from "@/types/prismaTypes";
+import { Lease } from "@/types/prismaTypes";
 import { baseApi } from "./api";
 import { withToast } from "@/lib/utils";
 
@@ -28,21 +28,6 @@ export const leaseApi = baseApi.injectEndpoints({
         });
       },
     }),
-    getPayments: build.query<Payment[], number>({
-      query: (leaseId) => `leases/${leaseId}/payments`,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: "Payments" as const, id })),
-              { type: "Payments", id: "LIST" },
-            ]
-          : [{ type: "Payments", id: "LIST" }],
-      async onQueryStarted(_, { queryFulfilled }) {
-        await withToast(queryFulfilled, {
-          error: "Failed to fetch property leases.",
-        });
-      },
-    }),
     getAcceptedLease: build.query<
       Pick<Lease, "startDate" | "endDate">[],
       Pick<Lease, "propertyId">
@@ -61,6 +46,5 @@ export const leaseApi = baseApi.injectEndpoints({
 export const {
   useGetLeasesQuery,
   useGetPropertyLeasesQuery,
-  useGetPaymentsQuery,
   useGetAcceptedLeaseQuery,
 } = leaseApi;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +36,10 @@ export const LeaseDateRangePicker: React.FC<LeaseDateRangePickerProps> = ({
 }) => {
   const { data: authUser } = useGetAuthUserQuery();
   const startDate = form.watch(startDateFieldName);
+
+  // State to control popover visibility
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
 
   const { data: acceptedLeasesData } = useGetAcceptedLeaseQuery(
     {
@@ -93,7 +97,7 @@ export const LeaseDateRangePicker: React.FC<LeaseDateRangePickerProps> = ({
         render={({ field }) => (
           <FormItem className="flex flex-col flex-1">
             <FormLabel>Start Date</FormLabel>
-            <Popover>
+            <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
@@ -116,7 +120,13 @@ export const LeaseDateRangePicker: React.FC<LeaseDateRangePickerProps> = ({
                 <Calendar
                   mode="single"
                   selected={field.value}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    field.onChange(date);
+                    if (date) {
+                      setStartDateOpen(false);
+                      setEndDateOpen(true);
+                    }
+                  }}
                   disabled={(date) =>
                     date < new Date() ||
                     date >
@@ -139,7 +149,7 @@ export const LeaseDateRangePicker: React.FC<LeaseDateRangePickerProps> = ({
         render={({ field }) => (
           <FormItem className="flex flex-col flex-1">
             <FormLabel>End Date</FormLabel>
-            <Popover>
+            <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
@@ -174,6 +184,8 @@ export const LeaseDateRangePicker: React.FC<LeaseDateRangePickerProps> = ({
                       !isDateRangeOverlapping(startDate, date)
                     ) {
                       field.onChange(date);
+                      // Close end date popover after selection
+                      setEndDateOpen(false);
                     }
                   }}
                   disabled={(date) => {
