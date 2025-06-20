@@ -51,8 +51,7 @@ export interface Property {
   id: number;
   name: string;
   description: string;
-  pricePerMonth: number;
-  securityDeposit: number;
+  pricePerNight: number;
   applicationFee: number;
   photoUrls: string[];
   amenities: Amenity[];
@@ -118,6 +117,7 @@ export interface Application {
   name: string;
   email: string;
   phoneNumber: string;
+  paymentProof: string[];
   message?: string;
   leaseId?: number;
   property: Property;
@@ -129,7 +129,6 @@ export interface Lease {
   id: number;
   startDate: string;
   endDate: string;
-  rent: number;
   deposit: number;
   propertyId: number;
   tenantCognitoId: string;
@@ -137,5 +136,4 @@ export interface Lease {
   tenant: Tenant;
   application?: Application;
   nextPaymentDate?: string;
-  paymentProof: string[];
 }

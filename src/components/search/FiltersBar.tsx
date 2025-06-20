@@ -25,8 +25,8 @@ const PriceRangeSelector: React.FC<{
   isMin: boolean;
 }> = ({ value, onValueChange, isMin }) => {
   const options = isMin
-    ? [500, 1000, 1500, 2000, 3000, 5000, 10000]
-    : [1000, 2000, 3000, 5000, 10000];
+    ? [5, 10, 15, 20, 30, 50, 100]
+    : [10, 15, 20, 30, 50, 100, 150];
 
   const placeholderText = isMin ? "Any Min Price" : "Any Max Price";
 
@@ -39,7 +39,7 @@ const PriceRangeSelector: React.FC<{
         <SelectItem value="any">{placeholderText}</SelectItem>
         {options.map((price) => (
           <SelectItem key={price} value={price.toString()}>
-            {isMin ? `$${price / 1000}k+` : `<$${price / 1000}k`}
+            {isMin ? `$${price}+` : `<$${price}`}
           </SelectItem>
         ))}
       </SelectContent>

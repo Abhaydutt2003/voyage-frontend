@@ -50,9 +50,9 @@ const PropertyOverview = ({ propertyId }: PropertyOverviewProps) => {
       <div className="border border-primary-200 rounded-xl p-6 mb-6">
         <div className="flex justify-between items-center gap-4 px-5">
           <div>
-            <div className="text-sm text-gray-500">Monthly Rent</div>
+            <div className="text-sm text-gray-500">Per Night Rent</div>
             <div className="font-semibold">
-              ${property.pricePerMonth.toLocaleString()}
+              ${property.pricePerNight.toLocaleString()}
             </div>
           </div>
           <div className="border-l border-gray-300 h-10" />

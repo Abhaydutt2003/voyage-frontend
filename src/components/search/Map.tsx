@@ -1,5 +1,4 @@
 "use client";
-
 import { useGetPropertiesQuery } from "@/state/api/propertyEndpoints";
 import { useAppSelector } from "@/state/redux";
 import { useEffect, useRef } from "react";
@@ -9,9 +8,11 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
-//TODO understand
 const Map = () => {
   const mapContainerRef = useRef(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
+
   const filters = useAppSelector((state) => state.global.filters);
   const {
     data: properties,
@@ -19,26 +20,66 @@ const Map = () => {
     isError,
   } = useGetPropertiesQuery(filters);
 
+  // Initialize map only once
   useEffect(() => {
-    if (isLoading || isError || !properties) return;
+    if (!mapContainerRef.current) return;
+
     const map = new mapboxgl.Map({
       container: mapContainerRef.current!,
       style: "mapbox://styles/duttabhay/cmay2omma009a01qxcu81dcpg",
       center: filters.coordinates || [-74.5, 40],
       zoom: 9,
     });
-    properties.forEach((property) => {
-      const marker = createPropertyMarker(property, map);
-      const markerElement = marker.getElement();
-      const path = markerElement.querySelector("path[fill='#3FB1CE']");
-      if (path) path.setAttribute("fill", "#000000");
-    });
+
+    map.addControl(
+      new mapboxgl.NavigationControl({
+        showCompass: false,
+        showZoom: true,
+        visualizePitch: false,
+      }),
+      "top-right"
+    );
+
+    mapRef.current = map;
+
     const resizeMap = () => {
       if (map) setTimeout(() => map.resize(), 700);
     };
     resizeMap();
-    return () => map.remove();
-  }, [isLoading, isError, properties, filters.coordinates]);
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []); // Empty dependency array - initialize only once
+
+  // Update map center when coordinates change
+  useEffect(() => {
+    if (mapRef.current && filters.coordinates) {
+      mapRef.current.setCenter(filters.coordinates);
+    }
+  }, [filters.coordinates]);
+
+  // Update markers when properties change
+  useEffect(() => {
+    if (isLoading || isError || !properties || !mapRef.current) return;
+
+    // Clear existing markers
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
+
+    // Add new markers
+    properties.forEach((property) => {
+      const marker = createPropertyMarker(property, mapRef.current!);
+      const markerElement = marker.getElement();
+      const path = markerElement.querySelector("path[fill='#3FB1CE']");
+      if (path) path.setAttribute("fill", "#000000");
+
+      markersRef.current.push(marker);
+    });
+  }, [isLoading, isError, properties]);
 
   if (isLoading) return <>Loading...</>;
   if (isError || !properties) return <div>Failed to fetch properties</div>;
@@ -66,20 +107,23 @@ const createPropertyMarker = (property: Property, map: mapboxgl.Map) => {
     .setPopup(
       new mapboxgl.Popup().setHTML(
         `
-          <div class="marker-popup">
-            <div class="marker-popup-image"></div>
-            <div>
-              <a href="/search/${property.id}" target="_blank" class="marker-popup-title">${property.name}</a>
-              <p class="marker-popup-price">
-                $${property.pricePerMonth}
-                <span class="marker-popup-price-unit"> / month</span>
-              </p>
-            </div>
+        <div class="marker-popup">
+          <div class="marker-popup-image"></div>
+          <div>
+            <a href="/search/${
+              property.id
+            }" target="_blank" class="marker-popup-title">${property.name}</a>
+            <p class="marker-popup-price">
+              $${property.pricePerNight.toFixed(2)}
+              <span class="marker-popup-price-unit"> / night</span>
+            </p>
           </div>
-          `
+        </div>
+        `
       )
     )
     .addTo(map);
+
   return marker;
 };
 

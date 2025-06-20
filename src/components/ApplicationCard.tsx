@@ -11,10 +11,6 @@ const ApplicationCard = ({
     application.property.photoUrls?.[0] || "/placeholder.jpg"
   );
 
-  if (application.status === "Pending") {
-    console.log(application);
-  }
-
   const statusColor =
     application.status === "Approved"
       ? "bg-green-500"
@@ -66,8 +62,7 @@ const ApplicationCard = ({
   };
 
   const hasPaymentProofs =
-    application.lease?.paymentProof &&
-    application.lease.paymentProof.length > 0;
+    application.paymentProof && application.paymentProof.length > 0;
 
   return (
     <div className="border rounded-xl overflow-hidden shadow-sm bg-white mb-4">
@@ -94,8 +89,8 @@ const ApplicationCard = ({
               </div>
             </div>
             <div className="text-xl font-semibold">
-              ${application.property.pricePerMonth}{" "}
-              <span className="text-sm font-normal">/ month</span>
+              ${application.property.pricePerNight.toFixed(2)}{" "}
+              <span className="text-sm font-normal">/ night</span>
             </div>
           </div>
         </div>
@@ -135,13 +130,13 @@ const ApplicationCard = ({
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Payment Proofs:</span>
                 <span className="text-sm text-gray-600">
-                  {hasPaymentProofs ? application.lease.paymentProof.length : 0}
+                  {hasPaymentProofs ? application.paymentProof.length : 0}
                 </span>
               </div>
 
               {hasPaymentProofs ? (
                 <div className="flex flex-col gap-1">
-                  {application.lease.paymentProof.map((proofUrl, index) => (
+                  {application.paymentProof.map((proofUrl, index) => (
                     <button
                       key={index}
                       onClick={() =>

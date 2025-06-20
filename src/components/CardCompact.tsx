@@ -97,8 +97,8 @@ const CardCompact = ({
             </span>
           </div>
           <p className="text-base font-bold">
-            ${property.pricePerMonth.toFixed(0)}
-            <span className="text-gray-600 text-xs font-normal"> /mo</span>
+            ${property.pricePerNight.toFixed(0)}
+            <span className="text-gray-600 text-xs font-normal"> /ni</span>
           </p>
         </div>
       </div>
