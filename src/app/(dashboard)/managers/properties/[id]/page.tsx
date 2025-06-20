@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { useGetPropertyQuery } from "@/state/api/propertyEndpoints";
 import { useGetPropertyLeasesQuery } from "@/state/api/leaseEndpoints";
-import { ArrowDownToLine, ArrowLeft, Check, Download } from "lucide-react";
+import { ArrowDownToLine, ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import Image from "next/image";
@@ -24,10 +24,6 @@ const PropertyTenants = () => {
     useGetPropertyQuery(propertyId);
   const { data: leases, isLoading: leasesLoading } =
     useGetPropertyLeasesQuery(propertyId);
-
-  const getCurrentMonthPaymentStatus = (leaseId: number) => {
-    return "Not Paid";
-  };
 
   if (propertyLoading || leasesLoading) return <Loading />;
 
@@ -72,8 +68,6 @@ const PropertyTenants = () => {
                 <TableRow>
                   <TableHead>Tenant</TableHead>
                   <TableHead>Lease Period</TableHead>
-                  <TableHead>Monthly Rent</TableHead>
-                  <TableHead>Current Month Status</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
@@ -105,21 +99,6 @@ const PropertyTenants = () => {
                         {new Date(lease.startDate).toLocaleDateString()} -
                       </div>
                       <div>{new Date(lease.endDate).toLocaleDateString()}</div>
-                    </TableCell>
-                    <TableCell>${lease.rent.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          getCurrentMonthPaymentStatus(lease.id) === "Paid"
-                            ? "bg-green-100 text-green-800 border-green-300"
-                            : "bg-red-100 text-red-800 border-red-300"
-                        }`}
-                      >
-                        {getCurrentMonthPaymentStatus(lease.id) === "Paid" && (
-                          <Check className="w-4 h-4 inline-block mr-1" />
-                        )}
-                        {getCurrentMonthPaymentStatus(lease.id)}
-                      </span>
                     </TableCell>
                     <TableCell>{lease.tenant.phoneNumber}</TableCell>
                     <TableCell>

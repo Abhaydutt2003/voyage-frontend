@@ -5,32 +5,52 @@ import { withToast } from "@/lib/utils";
 export const applicationApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getApplications: build.query<
-      Application[],
-      { userId?: string; userType?: string }
+      {
+        applications: Application[];
+        hasMore: boolean;
+        nextCursor: string | null;
+      },
+      {
+        userId?: string;
+        userType?: string;
+        limit?: number;
+        afterCursor?: string | null;
+        status: string;
+      }
     >({
       query: (params) => {
         const queryParams = new URLSearchParams();
+        if (params.status) {
+          queryParams.append("status", params.status.toString());
+        }
         if (params.userId) {
           queryParams.append("userId", params.userId.toString());
         }
         if (params.userType) {
           queryParams.append("userType", params.userType.toString());
         }
+        if (params.limit) {
+          queryParams.append("limit", params.limit.toString());
+        }
+        if (params.afterCursor) {
+          queryParams.append("afterCursor", params.afterCursor);
+        }
         return `applications?${queryParams.toString()}`;
       },
-      providesTags: (result) =>
-        result
+      providesTags: (result, _error, { status }) => {
+        return result
           ? [
-              ...result.map(({ id }) => ({
+              ...result.applications.map(({ id }) => ({
                 type: "Applications" as const,
                 id,
               })),
-              { type: "Applications", id: "LIST" },
+              { type: "Applications", id: `LIST-${status.toUpperCase()}` },
             ]
-          : [],
+          : [{ type: "Applications", id: `LIST-${status.toUpperCase()}` }];
+      },
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch leases.",
+          error: "Failed to fetch applications.",
         });
       },
     }),
@@ -43,7 +63,25 @@ export const applicationApi = baseApi.injectEndpoints({
         method: "PUT",
         body: { status },
       }),
-      invalidatesTags: ["Applications", "Leases"],
+      invalidatesTags: (result, error, { id }) => {
+        const tagsToInvalidate: Array<
+          { type: "Applications"; id?: string | number } | "Leases"
+        > = [
+          { type: "Applications", id }, // Invalidate the specific application
+          "Leases", // Invalidate leases as a new lease might be created on approval
+        ];
+
+        // If the application was previously in a different status, invalidate that list too.
+        // This requires knowing the old status, which RTK Query doesn't provide directly in invalidatesTags.
+        // A common pattern for this is to use `onQueryStarted` with `patchQueryData` or fetch the old data.
+        // For simplicity and effectiveness, we'll invalidate all relevant list types.
+        // This is a more robust approach if the old status isn't easily accessible.
+        tagsToInvalidate.push({ type: "Applications", id: `LIST-PENDING` });
+        tagsToInvalidate.push({ type: "Applications", id: `LIST-APPROVED` });
+        tagsToInvalidate.push({ type: "Applications", id: `LIST-DENIED` });
+
+        return tagsToInvalidate;
+      },
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
           error: "Failed to fetch leases.",
@@ -57,7 +95,7 @@ export const applicationApi = baseApi.injectEndpoints({
         method: "POST",
         body: body,
       }),
-      invalidatesTags: ["Applications"],
+      invalidatesTags: [{ type: "Applications", id: "LIST-PENDING" }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
           success: "Application created successfully!",
