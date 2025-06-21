@@ -25,8 +25,16 @@ const SearchPage = () => {
       (acc: any, [key, value]) => {
         if (key === "priceRange" || key === "squareFeet") {
           acc[key] = value.split(",").map((v) => (v === "" ? null : Number(v)));
-        } else if (key === "coordinates") {
-          acc[key] = value.split(",").map(Number);
+        } else if (key === "lat") {
+          if (!acc["coordinates"]) {
+            acc["coordinates"] = new Array(2).fill(0);
+          }
+          acc["coordinates"][0] = value.split(",").map(Number);
+        } else if (key === "lng") {
+          if (!acc["coordinates"]) {
+            acc["coordinates"] = new Array(2).fill(0);
+          }
+          acc["coordinates"][1] = value.split(",").map(Number);
         } else {
           acc[key] = value === "any" ? null : value;
         }

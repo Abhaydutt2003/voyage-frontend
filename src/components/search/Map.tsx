@@ -1,18 +1,15 @@
 "use client";
-import { useGetPropertiesQuery } from "@/state/api/propertyEndpoints";
-import { useAppSelector } from "@/state/redux";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
-import { Property } from "@/types/prismaTypes";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useAppSelector } from "@/state/redux";
+import { Property } from "@/types/prismaTypes";
+import { useGetPropertiesQuery } from "@/state/api/propertyEndpoints";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Map = () => {
   const mapContainerRef = useRef(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
-
   const filters = useAppSelector((state) => state.global.filters);
   const {
     data: properties,
@@ -20,9 +17,8 @@ const Map = () => {
     isError,
   } = useGetPropertiesQuery(filters);
 
-  // Initialize map only once
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    if (isLoading || isError || !properties) return;
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current!,
@@ -31,55 +27,20 @@ const Map = () => {
       zoom: 9,
     });
 
-    map.addControl(
-      new mapboxgl.NavigationControl({
-        showCompass: false,
-        showZoom: true,
-        visualizePitch: false,
-      }),
-      "top-right"
-    );
-
-    mapRef.current = map;
+    properties.forEach((property) => {
+      const marker = createPropertyMarker(property, map);
+      const markerElement = marker.getElement();
+      const path = markerElement.querySelector("path[fill='#3FB1CE']");
+      if (path) path.setAttribute("fill", "#000000");
+    });
 
     const resizeMap = () => {
       if (map) setTimeout(() => map.resize(), 700);
     };
     resizeMap();
 
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, []); // Empty dependency array - initialize only once
-
-  // Update map center when coordinates change
-  useEffect(() => {
-    if (mapRef.current && filters.coordinates) {
-      mapRef.current.setCenter(filters.coordinates);
-    }
-  }, [filters.coordinates]);
-
-  // Update markers when properties change
-  useEffect(() => {
-    if (isLoading || isError || !properties || !mapRef.current) return;
-
-    // Clear existing markers
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current = [];
-
-    // Add new markers
-    properties.forEach((property) => {
-      const marker = createPropertyMarker(property, mapRef.current!);
-      const markerElement = marker.getElement();
-      const path = markerElement.querySelector("path[fill='#3FB1CE']");
-      if (path) path.setAttribute("fill", "#000000");
-
-      markersRef.current.push(marker);
-    });
-  }, [isLoading, isError, properties]);
+    return () => map.remove();
+  }, [isLoading, isError, properties, filters.coordinates]);
 
   if (isLoading) return <>Loading...</>;
   if (isError || !properties) return <div>Failed to fetch properties</div>;
@@ -123,7 +84,6 @@ const createPropertyMarker = (property: Property, map: mapboxgl.Map) => {
       )
     )
     .addTo(map);
-
   return marker;
 };
 

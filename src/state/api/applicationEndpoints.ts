@@ -82,9 +82,14 @@ export const applicationApi = baseApi.injectEndpoints({
 
         return tagsToInvalidate;
       },
-      async onQueryStarted(_, { queryFulfilled }) {
+      async onQueryStarted({ status }, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch leases.",
+          success: `${
+            status == "Approved"
+              ? "Appplication approved successfully"
+              : "Application denied."
+          }`,
+          error: "Failed to update application status",
         });
       },
     }),
