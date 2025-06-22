@@ -9,36 +9,34 @@ import {
   useGetApplicationsQuery,
 } from "@/state/api/applicationEndpoints";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
-import { CircleCheckBig, Clock, Download, XCircle } from "lucide-react";
-import React, { useState } from "react";
+import { CircleCheckBig, Clock, Download, Star, XCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
+import { Application } from "@/types/prismaTypes";
 
 const Applications = () => {
-  // Initial active tab is "Pending" for consistency with manager's view
   const [activeTab, setActiveTab] = useState("Pending");
-  const [limit] = useState(10); // Assuming pagination for tenant too
   const [afterCursor, setAfterCursor] = useState<string | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
 
   const { data: authUser } = useGetAuthUserQuery();
   const {
-    data: paginatedData,
+    data: paginatedApplications,
     isLoading,
     isError,
   } = useGetApplicationsQuery(
     {
       userId: authUser?.cognitoInfo?.userId,
       userType: "tenant",
-      status: activeTab, // Always send the activeTab as status
-      limit: limit,
+      status: activeTab,
+      limit: 5,
       afterCursor: afterCursor,
     },
     {
       skip: !authUser?.cognitoInfo?.userId,
     }
   );
-  const applications = paginatedData?.applications;
-  const hasMore = paginatedData?.hasMore; // Assuming hasMore and nextCursor are returned for tenant too
-  const nextCursor = paginatedData?.nextCursor;
 
   const [downloadAgreement] = useDownloadAgreementMutation();
 
@@ -54,10 +52,23 @@ const Applications = () => {
   };
 
   const loadMore = () => {
-    if (hasMore && nextCursor) {
-      setAfterCursor(nextCursor);
+    if (paginatedApplications?.hasMore && paginatedApplications?.nextCursor) {
+      setAfterCursor(paginatedApplications.nextCursor);
     }
   };
+
+  useEffect(() => {
+    if (paginatedApplications?.applications) {
+      setApplications((prev: Application[]) => {
+        if (!afterCursor) return paginatedApplications.applications;
+        const prevIds = new Set(prev.map((a) => a.id));
+        const newApps = paginatedApplications.applications.filter(
+          (a) => !prevIds.has(a.id)
+        );
+        return [...prev, ...newApps];
+      });
+    }
+  }, [paginatedApplications, afterCursor]);
 
   if (isLoading) return <Loading />;
   if (isError || !applications)
@@ -78,12 +89,10 @@ const Applications = () => {
         className="w-full my-5"
       >
         <TabsList className="grid w-full grid-cols-3">
-          {/* Removed "All" tab */}
           <TabsTrigger value="Pending">Pending</TabsTrigger>
           <TabsTrigger value="Approved">Approved</TabsTrigger>
           <TabsTrigger value="Denied">Denied</TabsTrigger>
         </TabsList>
-        {/* Iterate over specific statuses */}
         {["Pending", "Approved", "Denied"].map((tab) => (
           <TabsContent key={tab} value={tab} className="mt-5 w-full">
             {applications.length === 0 ? (
@@ -103,10 +112,13 @@ const Applications = () => {
                       application.lease ? (
                         <div className="bg-green-100 p-4 text-green-700 grow flex items-center">
                           <CircleCheckBig className="w-5 h-5 mr-2" />
-                          The property is being rented by you until{" "}
-                          {new Date(
-                            application.lease?.endDate
-                          ).toLocaleDateString()}
+                          {new Date(application.lease?.endDate) < new Date()
+                            ? `This property was rented by you till ${new Date(
+                                application.lease?.endDate
+                              ).toLocaleDateString()}`
+                            : `The property is being rented by you until ${new Date(
+                                application.lease?.endDate
+                              ).toLocaleDateString()}`}
                         </div>
                       ) : application.status === "Pending" ? (
                         <div className="bg-yellow-100 p-4 text-yellow-700 grow flex items-center">
@@ -120,21 +132,30 @@ const Applications = () => {
                         </div>
                       )}
                       {application.status == "Approved" && (
-                        <button
-                          className={`bg-white border border-gray-300 text-gray-700 py-2 px-4
+                        <>
+                          <button
+                            className={`bg-white border border-gray-300 text-gray-700 py-2 px-4
                               rounded-md flex items-center justify-center hover:bg-primary-700 hover:text-primary-50 cursor-pointer`}
-                          onClick={() =>
-                            handleAgreementDownload(application.id)
-                          }
-                        >
-                          <Download className="w-5 h-5 mr-2" />
-                          Download Agreement
-                        </button>
+                            onClick={() =>
+                              handleAgreementDownload(application.id)
+                            }
+                          >
+                            <Download className="w-5 h-5 mr-2" />
+                            Download Agreement
+                          </button>
+                          <Link
+                            href={`/tenants/residences/${application.property.id}`}
+                            className={`border border-gray-300 py-2 px-4 rounded-md flex items-center justify-center hover:text-primary-50 cursor-pointer text-white bg-blue-600 hover:bg-blue-500`}
+                          >
+                            <Star className="w-5 h-5 mr-2" />
+                            Add Review
+                          </Link>
+                        </>
                       )}
                     </div>
                   </ApplicationCard>
                 ))}
-                {hasMore && (
+                {paginatedApplications?.hasMore && (
                   <div className="text-center mt-4">
                     <button
                       onClick={loadMore}

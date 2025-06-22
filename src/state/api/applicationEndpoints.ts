@@ -1,4 +1,4 @@
-import { Application, Lease } from "@/types/prismaTypes";
+import { Application, ApplicationWithLease, Lease } from "@/types/prismaTypes";
 import { baseApi } from "./api";
 import { withToast } from "@/lib/utils";
 
@@ -6,7 +6,7 @@ export const applicationApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getApplications: build.query<
       {
-        applications: Application[];
+        applications: ApplicationWithLease[];
         hasMore: boolean;
         nextCursor: string | null;
       },

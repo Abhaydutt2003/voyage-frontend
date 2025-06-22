@@ -26,7 +26,7 @@ import type { Application } from "@/types/prismaTypes";
 const Applications = () => {
   const { data: authUser } = useGetAuthUserQuery();
   const [activeTab, setActiveTab] = useState("Pending");
-  const [limit] = useState(10);
+  const [limit] = useState(5);
   const [afterCursor, setAfterCursor] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
 
@@ -49,10 +49,6 @@ const Applications = () => {
 
   const [updateApplicationStatus] = useUpdateApplicationStatusMutation();
   const [downloadAgreement] = useDownloadAgreementMutation();
-
-  useEffect(() => {
-    setApplications([]);
-  }, [activeTab]);
 
   useEffect(() => {
     if (paginatedApplications?.applications) {
@@ -230,14 +226,6 @@ const Applications = () => {
                               Deny
                             </button>
                           </>
-                        )}
-                        {application.status === "Denied" && (
-                          <button
-                            className={`bg-gray-800 text-white py-2 px-4 rounded-md flex items-center
-                            justify-center hover:bg-secondary-500 hover:text-primary-50`}
-                          >
-                            Contact User
-                          </button>
                         )}
                       </div>
                     </div>

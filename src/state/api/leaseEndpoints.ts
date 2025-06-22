@@ -4,15 +4,6 @@ import { withToast } from "@/lib/utils";
 
 export const leaseApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getLeases: build.query<Lease[], void>({
-      query: () => "leases",
-      providesTags: [{ type: "Leases", id: "LIST" }],
-      async onQueryStarted(_, { queryFulfilled }) {
-        await withToast(queryFulfilled, {
-          error: "Failed to fetch leases.",
-        });
-      },
-    }),
     getPropertyLeases: build.query<Lease[], number>({
       query: (propertyId) => `properties/${propertyId}/leases`,
       providesTags: (result) =>
@@ -43,8 +34,4 @@ export const leaseApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetLeasesQuery,
-  useGetPropertyLeasesQuery,
-  useGetAcceptedLeaseQuery,
-} = leaseApi;
+export const { useGetPropertyLeasesQuery, useGetAcceptedLeaseQuery } = leaseApi;

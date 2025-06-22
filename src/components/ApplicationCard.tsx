@@ -165,39 +165,32 @@ const ApplicationCard = ({
         {/* Divider - visible only on desktop */}
         <div className="hidden lg:block border-[0.5px] border-primary-200 h-48" />
         {/* Contact Person Section */}
-        {contactPerson && (
-          <div className="flex flex-col justify-start gap-5 w-full lg:basis-3/12 lg:h-48 py-2">
-            <div>
-              <div className="text-lg font-semibold">
-                {userType === "manager" ? "Tenant" : "Manager"}
-              </div>
-              <hr className="mt-3" />
+        <div className="flex flex-col justify-start gap-5 w-full lg:basis-3/12 lg:h-48 py-2">
+          <div>
+            <div className="text-lg font-semibold">
+              {userType === "manager" ? "Tenant" : "Manager"}
             </div>
+            <hr className="mt-3" />
+          </div>
 
-            <div className="flex gap-4">
-              <div>
-                <Image
-                  src="/landing-i1.png"
-                  alt={contactPerson.name}
-                  width={40}
-                  height={40}
-                  className="rounded-full mr-2 min-w-[40px] min-h-[40px]"
-                />
+          <div className="flex gap-4">
+            <div className="flex flex-col gap-2">
+              <div className="font-semibold">
+                {contactPerson ? contactPerson.name : application.name}
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="font-semibold">{contactPerson.name}</div>
-                <div className="text-sm flex items-center text-primary-600">
-                  <PhoneCall className="w-5 h-5 mr-2" />
-                  {contactPerson.phoneNumber}
-                </div>
-                <div className="text-sm flex items-center text-primary-600">
-                  <Mail className="w-5 h-5 mr-2" />
-                  {contactPerson.email}
-                </div>
+              <div className="text-sm flex items-center text-primary-600">
+                <PhoneCall className="w-5 h-5 mr-2" />
+                {contactPerson
+                  ? contactPerson.phoneNumber
+                  : application.phoneNumber}
+              </div>
+              <div className="text-sm flex items-center text-primary-600">
+                <Mail className="w-5 h-5 mr-2" />
+                {contactPerson ? contactPerson.email : application.email}
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       <hr className="my-4" />

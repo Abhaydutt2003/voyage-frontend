@@ -15,7 +15,6 @@ import { useGetPropertyLeasesQuery } from "@/state/api/leaseEndpoints";
 import { ArrowDownToLine, ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 
 const PropertyTenants = () => {
   const { id } = useParams();
@@ -77,13 +76,6 @@ const PropertyTenants = () => {
                   <TableRow key={lease.id} className="h-24">
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <Image
-                          src="/landing-i1.png"
-                          alt={lease.tenant.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                        />
                         <div>
                           <div className="font-semibold">
                             {lease.tenant.name}

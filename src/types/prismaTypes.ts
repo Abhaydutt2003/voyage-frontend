@@ -125,6 +125,10 @@ export interface Application {
   lease?: Lease;
 }
 
+export interface ApplicationWithLease extends Omit<Application, "lease"> {
+  lease: Lease;
+}
+
 export interface Lease {
   id: number;
   startDate: string;
@@ -136,4 +140,5 @@ export interface Lease {
   tenant: Tenant;
   application?: Application;
   nextPaymentDate?: string;
+  reviewAdded: boolean;
 }
