@@ -3,11 +3,14 @@ import { PropertyTypeEnum } from "./constants";
 
 export const propertySchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(500, "max words 500"),
   pricePerNight: z.coerce.number().positive().min(0).int(),
   isPetsAllowed: z.boolean(),
   isParkingIncluded: z.boolean(),
-  photoUrls: z
+  propertyImages: z
     .array(z.instanceof(File))
     .min(1, "At least one photo is required"),
   amenities: z.array(z.string()).min(1, "At least one amenity is required"),

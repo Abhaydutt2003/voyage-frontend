@@ -2,6 +2,20 @@ import { Application, ApplicationWithLease, Lease } from "@/types/prismaTypes";
 import { baseApi } from "./api";
 import { withToast } from "@/lib/utils";
 
+export type CreateApplicationData = Pick<
+  Application,
+  | "applicationDate"
+  | "status"
+  | "tenantCognitoId"
+  | "name"
+  | "email"
+  | "phoneNumber"
+  | "paymentProofsBaseKeys"
+> &
+  Pick<Lease, "startDate" | "endDate"> & {
+    propertyId: string;
+  };
+
 export const applicationApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getApplications: build.query<
@@ -93,7 +107,10 @@ export const applicationApi = baseApi.injectEndpoints({
         });
       },
     }),
-    createApplication: build.mutation<Application, FormData>({
+    createApplication: build.mutation<
+      Application,
+      Partial<CreateApplicationData>
+    >({
       //need FormData to construct a req body that contains both file data and regular from data.
       query: (body) => ({
         url: `applications`,

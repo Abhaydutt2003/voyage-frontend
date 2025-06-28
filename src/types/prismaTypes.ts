@@ -52,8 +52,7 @@ export interface Property {
   name: string;
   description: string;
   pricePerNight: number;
-  applicationFee: number;
-  photoUrls: string[];
+  photoUrlsBaseKeys: string[];
   amenities: Amenity[];
   highlights: Highlight[];
   isPetsAllowed: boolean;
@@ -117,12 +116,12 @@ export interface Application {
   name: string;
   email: string;
   phoneNumber: string;
-  paymentProof: string[];
   message?: string;
   leaseId?: number;
   property: Property;
   tenant?: Tenant;
   lease?: Lease;
+  paymentProofsBaseKeys: string[];
 }
 
 export interface ApplicationWithLease extends Omit<Application, "lease"> {

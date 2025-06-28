@@ -30,6 +30,8 @@ import { FilePond } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
@@ -43,7 +45,23 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
+// Add file validation constants
+export const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "application/pdf",
+];
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
+registerPlugin(
+  FilePondPluginImageExifOrientation,
+  FilePondPluginImagePreview,
+  FilePondPluginFileValidateSize,
+  FilePondPluginFileValidateType
+);
 
 interface FormFieldProps {
   name: string;
@@ -146,13 +164,25 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
           <FilePond
             className={`${inputClassName}`}
             onupdatefiles={(fileItems) => {
-              const files = fileItems.map((fileItem) => fileItem.file);
-              field.onChange(files);
+              const validFiles = fileItems
+                .filter(
+                  (fileItem) => fileItem.status === 2 || fileItem.status === 5
+                )
+                .map((fileItem) => fileItem.file);
+
+              field.onChange(validFiles);
             }}
             allowMultiple={true}
-            labelIdle={`Drag & Drop your images or <span class="filepond--label-action">Browse</span>`}
+            labelIdle={`Drag & Drop your files or <span class="filepond--label-action">Browse</span>`}
             credits={false}
-            acceptedFileTypes={accept?.split(",") || []}
+            acceptedFileTypes={ALLOWED_MIME_TYPES}
+            maxFileSize={`${MAX_FILE_SIZE}B`}
+            labelMaxFileSizeExceeded="File is too large"
+            labelMaxFileSize={`Maximum file size is ${
+              MAX_FILE_SIZE / (1024 * 1024)
+            }MB`}
+            labelFileTypeNotAllowed="Invalid file type"
+            fileValidateTypeLabelExpectedTypes="Expects images (PNG, JPG, etc) or PDF"
           />
         );
       case "number":

@@ -242,41 +242,6 @@ const Residence = () => {
     }).unwrap();
   };
 
-  // const handleReviewSubmit = async (
-  //   leaseId: number,
-  //   rating: number,
-  //   review: string
-  // ) => {
-  //   setIsRatingLoading(true);
-  //   try {
-  //     // TODO: Integrate your lease review API here
-  //     console.log("Submitting lease review:", {
-  //       leaseId,
-  //       rating,
-  //       review,
-  //       propertyId: id,
-  //     });
-
-  //     // Example API call structure:
-  //     // await submitLeaseReview({
-  //     //   leaseId: leaseId,
-  //     //   propertyId: Number(id),
-  //     //   userId: authUser?.cognitoInfo.userId,
-  //     //   rating,
-  //     //   review,
-  //     // });
-
-  //     console.log("Lease review submitted successfully!");
-  //     // You can add success notification here
-  //   } catch (error) {
-  //     console.error("Error submitting lease review:", error);
-  //     // You can add error notification here
-  //     throw error; // Re-throw to handle in the modal
-  //   } finally {
-  //     setIsRatingLoading(false);
-  //   }
-  // };
-
   const openReviewModal = (leaseId: number, startDate: string) => {
     const today = new Date();
     const start = new Date(startDate);

@@ -1,8 +1,11 @@
 "use client";
 import { PropertyFormData, propertySchema } from "@/lib/schemas";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
-import { useCreatePropertyMutation } from "@/state/api/propertyEndpoints";
-import React from "react";
+import {
+  PropertyCreationData,
+  useCreatePropertyMutation,
+} from "@/state/api/propertyEndpoints";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Header from "@/components/Header";
@@ -12,11 +15,15 @@ import { Button } from "@/components/ui/button";
 import { Amenity, Highlight } from "@/types/prismaTypes";
 import { PropertyTypeEnum } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+import useUploadFile from "@/hooks/useFileUpload";
+import { Loader2Icon } from "lucide-react";
 
 const NewProperty = () => {
   const [createProperty] = useCreatePropertyMutation();
   const { data: authUser } = useGetAuthUserQuery();
   const router = useRouter();
+  const { uploadFiles } = useUploadFile();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -26,12 +33,13 @@ const NewProperty = () => {
       pricePerNight: 30,
       isPetsAllowed: true,
       isParkingIncluded: true,
-      photoUrls: [],
+      propertyImages: [],
       amenities: [],
       highlights: [],
       beds: 1,
       baths: 1,
       squareFeet: 1000,
+      propertyType: PropertyTypeEnum.Apartment,
       address: "",
       city: "",
       state: "",
@@ -44,22 +52,30 @@ const NewProperty = () => {
     if (!authUser?.cognitoInfo?.userId) {
       throw new Error("No manager ID found");
     }
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (key === "photoUrls") {
-        const files = value as File[];
-        files.forEach((file: File) => {
-          formData.append("photos", file);
-        });
-      } else if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else {
-        formData.append(key, String(value));
-      }
+    setIsSubmitting(true);
+    const baseKeys = await uploadFiles({
+      files: data.propertyImages,
+      uploadType: "propertyImage",
     });
-    formData.append("managerCognitoId", authUser.cognitoInfo.userId);
-    await createProperty(formData);
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      propertyImages,
+      amenities,
+      highlights,
+      ...dataWithoutPropertyImages
+    } = data;
+
+    const dataToSend: PropertyCreationData = {
+      ...dataWithoutPropertyImages,
+      highlights: JSON.stringify(highlights),
+      amenities: JSON.stringify(amenities),
+      photoUrlsBaseKeys: baseKeys,
+      managerCognitoId: authUser.cognitoInfo.userId,
+    };
+
+    await createProperty(dataToSend);
     router.push("/managers/properties");
+    setIsSubmitting(false);
   };
 
   return (
@@ -176,7 +192,7 @@ const NewProperty = () => {
             <div>
               <h2 className="text-lg font-semibold mb-4">Photos</h2>
               <CustomFormField
-                name="photoUrls"
+                name="propertyImages"
                 label="Property Photos"
                 type="file"
                 accept="image/*"
@@ -199,9 +215,17 @@ const NewProperty = () => {
 
             <Button
               type="submit"
-              className="bg-primary-700 text-white w-full mt-8"
+              className="bg-primary-700 text-white w-full"
+              disabled={isSubmitting}
             >
-              Create Property
+              {isSubmitting ? (
+                <>
+                  <Loader2Icon className="animate-spin" />
+                  Submitting
+                </>
+              ) : (
+                <>Create Property</>
+              )}
             </Button>
           </form>
         </Form>
