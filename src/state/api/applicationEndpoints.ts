@@ -1,12 +1,26 @@
-import { Application, Lease } from "@/types/prismaTypes";
+import { Application, ApplicationWithLease, Lease } from "@/types/prismaTypes";
 import { baseApi } from "./api";
 import { withToast } from "@/lib/utils";
+
+export type CreateApplicationData = Pick<
+  Application,
+  | "applicationDate"
+  | "status"
+  | "tenantCognitoId"
+  | "name"
+  | "email"
+  | "phoneNumber"
+  | "paymentProofsBaseKeys"
+> &
+  Pick<Lease, "startDate" | "endDate"> & {
+    propertyId: string;
+  };
 
 export const applicationApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getApplications: build.query<
       {
-        applications: Application[];
+        applications: ApplicationWithLease[];
         hasMore: boolean;
         nextCursor: string | null;
       },
@@ -82,13 +96,21 @@ export const applicationApi = baseApi.injectEndpoints({
 
         return tagsToInvalidate;
       },
-      async onQueryStarted(_, { queryFulfilled }) {
+      async onQueryStarted({ status }, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch leases.",
+          success: `${
+            status == "Approved"
+              ? "Appplication approved successfully"
+              : "Application denied."
+          }`,
+          error: "Failed to update application status",
         });
       },
     }),
-    createApplication: build.mutation<Application, FormData>({
+    createApplication: build.mutation<
+      Application,
+      Partial<CreateApplicationData>
+    >({
       //need FormData to construct a req body that contains both file data and regular from data.
       query: (body) => ({
         url: `applications`,

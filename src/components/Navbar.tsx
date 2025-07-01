@@ -2,7 +2,7 @@
 import { NAVBAR_HEIGHT } from "@/lib/constants";
 import Link from "next/link";
 import React from "react";
-import { Bell, Map, MessageCircle, Plus, Search } from "lucide-react";
+import { Map, Plus, Search } from "lucide-react";
 import { Button } from "./ui/button";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
 import { usePathname, useRouter } from "next/navigation";

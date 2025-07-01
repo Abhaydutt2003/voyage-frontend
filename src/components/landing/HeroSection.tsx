@@ -78,6 +78,11 @@ const HeroSection = () => {
               <Input
                 type="text"
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleLocationSearch();
+                  }
+                }}
                 placeholder=" Search by city, neighborhood or address"
                 className=" w-full max-w-lg rounded-none rounded-l-xl border-none bg-white h-12"
               />

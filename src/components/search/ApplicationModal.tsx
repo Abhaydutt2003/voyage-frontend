@@ -6,17 +6,22 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { ApplicationFormData, applicationSchema } from "@/lib/schemas";
-import { useCreateApplicationMutation } from "@/state/api/applicationEndpoints";
+import {
+  CreateApplicationData,
+  useCreateApplicationMutation,
+} from "@/state/api/applicationEndpoints";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
 import { ApplicationStatus } from "@/types/prismaTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { CustomFormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 
 import { LeaseDateRangePicker } from "./LeaseDateRangePicker";
+import { Loader2Icon } from "lucide-react";
+import useUploadFile from "@/hooks/useFileUpload";
 
 const ApplicationModal = ({
   isOpen,
@@ -25,6 +30,8 @@ const ApplicationModal = ({
 }: ApplicationModalProps) => {
   const [createApplication] = useCreateApplicationMutation();
   const { data: authUser } = useGetAuthUserQuery();
+  const [isApplicaitonSubmitting, setIsApplicationSubmitting] = useState(false);
+  const { uploadFiles } = useUploadFile();
 
   const form = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
@@ -41,26 +48,30 @@ const ApplicationModal = ({
       toast.error("You must be logged in as a tenant to submit an application");
       return;
     }
-    const formData = new FormData();
-    formData.append("startDate", data.startDate.toISOString());
-    formData.append("endDate", data.endDate.toISOString());
-    Object.entries(data).forEach(([key, value]) => {
-      if (key === "paymentProof") {
-        const files = value as File[];
-        files.forEach((file: File) => {
-          formData.append("paymentProof", file);
-        });
-      } else if (key !== "startDate" && key !== "endDate") {
-        formData.append(key, String(value));
-      }
+    setIsApplicationSubmitting(true);
+
+    //upload files to s3 and the get the baseKeys to store in the database.
+    const baseKeys = await uploadFiles({
+      files: data.paymentProof,
+      uploadType: "paymentProof",
     });
-    formData.append("applicationDate", new Date().toISOString());
-    formData.append("status", ApplicationStatus.Pending);
-    formData.append("propertyId", String(propertyId));
-    formData.append("tenantCognitoId", authUser.cognitoInfo.userId);
-    console.log(formData);
-    await createApplication(formData);
+
+    //make the application.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { paymentProof, startDate, endDate, ...restApplicationData } = data;
+    const dataToSend: CreateApplicationData = {
+      ...restApplicationData,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      applicationDate: new Date().toISOString(),
+      status: ApplicationStatus.Pending,
+      propertyId: String(propertyId),
+      tenantCognitoId: authUser.cognitoInfo.userId,
+      paymentProofsBaseKeys: baseKeys,
+    };
+    await createApplication(dataToSend);
     onClose();
+    setIsApplicationSubmitting(false);
   };
 
   return (
@@ -114,8 +125,19 @@ const ApplicationModal = ({
               type="file"
             />
 
-            <Button type="submit" className="bg-primary-700 text-white w-full">
-              Submit Application
+            <Button
+              type="submit"
+              className="bg-primary-700 text-white w-full"
+              disabled={isApplicaitonSubmitting}
+            >
+              {isApplicaitonSubmitting ? (
+                <>
+                  <Loader2Icon className="animate-spin" />
+                  Submitting
+                </>
+              ) : (
+                <>Submit Application</>
+              )}
             </Button>
           </form>
         </Form>

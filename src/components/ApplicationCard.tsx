@@ -1,6 +1,7 @@
 import { Mail, MapPin, PhoneCall, Download } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 const ApplicationCard = ({
   application,
@@ -8,7 +9,7 @@ const ApplicationCard = ({
   children,
 }: ApplicationCardProps) => {
   const [imgSrc, setImgSrc] = useState(
-    application.property.photoUrls?.[0] || "/placeholder.jpg"
+    application.property.photoUrlsBaseKeys?.[0] || "/placeholder.jpg"
   );
 
   const statusColor =
@@ -21,38 +22,55 @@ const ApplicationCard = ({
   const contactPerson =
     userType === "manager" ? application.tenant : application.property.manager;
 
-  const handleDownloadPaymentProof = async (
-    proofUrl: string,
-    index: number
-  ) => {
-    try {
-      // If no payment proof exists, download a placeholder from assets
-      const downloadUrl = proofUrl || "/assets/sample-payment-proof.pdf";
+  const handleDownloadPaymentProofs = async () => {
+    const results = await Promise.allSettled(
+      application.paymentProofsBaseKeys.map(async (singleUrl, index) => {
+        try {
+          const response = await fetch(singleUrl);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `payment-proof-${application.id}-${
+            index + index
+          }.${getFileExtension(singleUrl)}`;
+          document.body.appendChild(link);
+          link.click();
 
-      const response = await fetch(downloadUrl);
-      const blob = await response.blob();
+          // Cleanup
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(link);
 
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `payment-proof-${application.id}-${
-        index + 1
-      }.${getFileExtension(downloadUrl)}`;
-      document.body.appendChild(link);
-      link.click();
+          return { success: true, url: singleUrl, index: index };
+        } catch (error) {
+          console.error(`Failed to download file ${index + 1}`, error);
+          return { success: false, url: singleUrl, index };
+        }
+      })
+    );
+    const successful = results.filter(
+      (result) => result.status === "fulfilled" && result.value.success
+    ).length;
 
-      // Cleanup
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error downloading payment proof:", error);
-      // Fallback: download placeholder file
-      //TODO Remove this
-      const link = document.createElement("a");
-      link.href = "/assets/sample-payment-proof.pdf";
-      link.download = `payment-proof-${application.id}-placeholder.pdf`;
-      link.click();
+    const failed = results.filter(
+      (result) =>
+        result.status === "rejected" ||
+        (result.status === "fulfilled" && !result.value.success)
+    ).length;
+
+    if (successful > 0) {
+      toast.success(
+        `Successfully downloaded ${successful} file${successful > 1 ? "s" : ""}`
+      );
+    }
+    if (failed > 0) {
+      toast.error(`Failed to download ${failed} file${failed > 1 ? "s" : ""}`);
+    }
+    if (successful === 0 && failed > 0) {
+      toast.error("Failed to download all payment proof files");
     }
   };
 
@@ -62,7 +80,8 @@ const ApplicationCard = ({
   };
 
   const hasPaymentProofs =
-    application.paymentProof && application.paymentProof.length > 0;
+    application.paymentProofsBaseKeys &&
+    application.paymentProofsBaseKeys.length > 0;
 
   return (
     <div className="border rounded-xl overflow-hidden shadow-sm bg-white mb-4">
@@ -125,79 +144,55 @@ const ApplicationCard = ({
           )}
 
           {/* Payment Proof Download Section */}
-          {application.lease && (
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500">Payment Proofs:</span>
-                <span className="text-sm text-gray-600">
-                  {hasPaymentProofs ? application.paymentProof.length : 0}
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <p className="text-gray-500">
+                Payment Proofs:{" "}
+                <span className="text-neutral-950 ">
+                  {hasPaymentProofs
+                    ? application.paymentProofsBaseKeys.length
+                    : 0}
                 </span>
+              </p>
+              <div
+                title="Click to download"
+                onClick={handleDownloadPaymentProofs}
+              >
+                <Download className="w-4 h-4 cursor-pointer" />
               </div>
-
-              {hasPaymentProofs ? (
-                <div className="flex flex-col gap-1">
-                  {application.paymentProof.map((proofUrl, index) => (
-                    <button
-                      key={index}
-                      onClick={() =>
-                        handleDownloadPaymentProof(proofUrl, index)
-                      }
-                      className="flex items-center gap-2 text-primary-600 hover:text-primary-800 text-sm p-1 rounded hover:bg-primary-50 transition-colors"
-                    >
-                      <Download className="w-4 h-4" />
-                      Proof {index + 1}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <button
-                  onClick={() => handleDownloadPaymentProof("", 0)}
-                  className="flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm p-1 rounded hover:bg-gray-50 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Payment Proof
-                </button>
-              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Divider - visible only on desktop */}
         <div className="hidden lg:block border-[0.5px] border-primary-200 h-48" />
         {/* Contact Person Section */}
-        {contactPerson && (
-          <div className="flex flex-col justify-start gap-5 w-full lg:basis-3/12 lg:h-48 py-2">
-            <div>
-              <div className="text-lg font-semibold">
-                {userType === "manager" ? "Tenant" : "Manager"}
-              </div>
-              <hr className="mt-3" />
+        <div className="flex flex-col justify-start gap-5 w-full lg:basis-3/12 lg:h-48 py-2">
+          <div>
+            <div className="text-lg font-semibold">
+              {userType === "manager" ? "Tenant" : "Manager"}
             </div>
+            <hr className="mt-3" />
+          </div>
 
-            <div className="flex gap-4">
-              <div>
-                <Image
-                  src="/landing-i1.png"
-                  alt={contactPerson.name}
-                  width={40}
-                  height={40}
-                  className="rounded-full mr-2 min-w-[40px] min-h-[40px]"
-                />
+          <div className="flex gap-4">
+            <div className="flex flex-col gap-2">
+              <div className="font-semibold">
+                {contactPerson ? contactPerson.name : application.name}
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="font-semibold">{contactPerson.name}</div>
-                <div className="text-sm flex items-center text-primary-600">
-                  <PhoneCall className="w-5 h-5 mr-2" />
-                  {contactPerson.phoneNumber}
-                </div>
-                <div className="text-sm flex items-center text-primary-600">
-                  <Mail className="w-5 h-5 mr-2" />
-                  {contactPerson.email}
-                </div>
+              <div className="text-sm flex items-center text-primary-600">
+                <PhoneCall className="w-5 h-5 mr-2" />
+                {contactPerson
+                  ? contactPerson.phoneNumber
+                  : application.phoneNumber}
+              </div>
+              <div className="text-sm flex items-center text-primary-600">
+                <Mail className="w-5 h-5 mr-2" />
+                {contactPerson ? contactPerson.email : application.email}
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       <hr className="my-4" />

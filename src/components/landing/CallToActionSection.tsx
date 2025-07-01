@@ -4,8 +4,20 @@ import Image from "next/image";
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
+import { toast } from "sonner";
 
 const CallToActionSection = () => {
+  const { data: authUser } = useGetAuthUserQuery();
+  const onSignUpClick = (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    if (authUser) {
+      e.preventDefault();
+      toast.info("You are already signed in!");
+    }
+  };
+
   return (
     <div className="relative py-24">
       <Image
@@ -44,6 +56,7 @@ const CallToActionSection = () => {
                 href="/signup"
                 className="inline-block text-white bg-secondary-500 rounded-lg px-6 py-3 font-semibold hover:bg-secondary-600"
                 scroll={false}
+                onClick={(e) => onSignUpClick(e)}
               >
                 Sign Up
               </Link>

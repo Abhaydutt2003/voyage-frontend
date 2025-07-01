@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { fetchAuthSession } from "aws-amplify/auth";
 
-
 export const TAG_TYPES = [
   "Managers",
   "Tenants",

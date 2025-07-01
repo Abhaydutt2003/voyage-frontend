@@ -2,6 +2,17 @@ import { Property } from "@/types/prismaTypes";
 import { FiltersState } from "..";
 import { cleanParams, withToast } from "@/lib/utils";
 import { baseApi } from "./api";
+import { PropertyFormData } from "@/lib/schemas";
+
+export type PropertyCreationData = Omit<
+  PropertyFormData,
+  "propertyImages" | "amenities" | "highlights"
+> & {
+  photoUrlsBaseKeys: string[];
+  managerCognitoId: string;
+  highlights: string;
+  amenities: string;
+};
 
 export const propertyApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -50,7 +61,7 @@ export const propertyApi = baseApi.injectEndpoints({
         });
       },
     }),
-    createProperty: build.mutation<Property, FormData>({
+    createProperty: build.mutation<Property, PropertyCreationData>({
       query: (newProperty) => ({
         url: `properties`,
         method: "POST",
