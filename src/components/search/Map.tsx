@@ -69,7 +69,9 @@ const createPropertyMarker = (property: Property, map: mapboxgl.Map) => {
       new mapboxgl.Popup().setHTML(
         `
         <div class="marker-popup">
-          <div class="marker-popup-image"></div>
+          <img class="marker-popup-image" src = ${
+            property.photoUrlsBaseKeys[0]
+          }></img>
           <div>
             <a href="/search/${
               property.id

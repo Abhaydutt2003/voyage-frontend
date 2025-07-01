@@ -11,7 +11,7 @@ const Card = ({
   propertyLink,
 }: CardProps) => {
   const [imgSrc, setImgSrc] = useState(
-    property.photoUrls?.[0] || "/placeholder.jpg"
+    property.photoUrlsBaseKeys?.[0] || "/placeholder.jpg"
   );
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-lg w-full mb-5">

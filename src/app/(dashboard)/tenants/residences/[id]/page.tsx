@@ -37,6 +37,7 @@ import {
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 // Star Rating Component
 const StarRating = ({
@@ -172,6 +173,7 @@ const ReviewModal = ({
 
 const Residence = () => {
   const { id } = useParams();
+
   const { data: authUser } = useGetAuthUserQuery();
   const [afterCursor, setAfterCursor] = useState<string | null>(null);
   const [applications, setApplications] = useState<ApplicationWithLease[]>([]);
@@ -201,6 +203,10 @@ const Residence = () => {
     {
       skip: !authUser?.cognitoInfo?.userId,
     }
+  );
+
+  const [imgSrc, setImgSrc] = useState(
+    property?.photoUrlsBaseKeys?.[0] || "/placeholder.jpg"
   );
 
   //TODO look into what this does.
@@ -267,7 +273,16 @@ const Residence = () => {
       <div className="flex gap-8 mb-6">
         {/* Property Information */}
         <div className="flex gap-5 flex-1">
-          <div className="w-64 h-32 object-cover bg-slate-500 rounded-xl" />
+          <Image
+            src={property.photoUrlsBaseKeys[0]}
+            alt={property.name}
+            width={500}
+            height={250}
+            className="rounded-xl object-cover w-full lg:w-[500px] h-[250px]"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={() => setImgSrc("/placeholder.jpg")}
+          />
+          {/* <div className="w-64 h-32 object-cover bg-slate-500 rounded-xl" /> */}
           <div className="flex flex-col justify-between flex-1">
             <div>
               <h2 className="text-2xl font-bold my-2">{property.name}</h2>

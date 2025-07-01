@@ -32,7 +32,7 @@ export const applicationSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
   phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-  message: z.string().optional(),
+  message: z.string().max(100).optional(),
   startDate: z.date({
     required_error: "Start date is required",
   }),

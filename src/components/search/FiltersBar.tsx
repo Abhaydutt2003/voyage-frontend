@@ -96,12 +96,13 @@ const FiltersBar = () => {
       const searchLocationData = await searchLocationsOnMapbox(searchInput);
       if (searchLocationData?.center) {
         const [lng, lat] = searchLocationData.center;
-        dispatch(
-          setFilters({
-            location: searchInput,
-            coordinates: [lng, lat],
-          })
-        );
+        const newFilters = {
+          ...filters,
+          location: searchInput,
+          coordinates: [lng, lat] as [number, number],
+        };
+        dispatch(setFilters(newFilters));
+        updateURL(newFilters);
       }
     } catch (error) {
       console.error("Error search location", error);
