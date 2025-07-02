@@ -25,11 +25,12 @@ export const applicationApi = baseApi.injectEndpoints({
         nextCursor: string | null;
       },
       {
+        status: string;
         userId?: string;
         userType?: string;
         limit?: number;
         afterCursor?: string | null;
-        status: string;
+        propertyId?: string;
       }
     >({
       query: (params) => {
@@ -48,6 +49,9 @@ export const applicationApi = baseApi.injectEndpoints({
         }
         if (params.afterCursor) {
           queryParams.append("afterCursor", params.afterCursor);
+        }
+        if (params.propertyId) {
+          queryParams.append("propertyId", params.propertyId);
         }
         return `applications?${queryParams.toString()}`;
       },
@@ -88,7 +92,7 @@ export const applicationApi = baseApi.injectEndpoints({
         // If the application was previously in a different status, invalidate that list too.
         // This requires knowing the old status, which RTK Query doesn't provide directly in invalidatesTags.
         // A common pattern for this is to use `onQueryStarted` with `patchQueryData` or fetch the old data.
-        // For simplicity and effectiveness, we'll invalidate all relevant list types.
+        // For simplicity and effectiveness, i'll invalidate all relevant list types.
         // This is a more robust approach if the old status isn't easily accessible.
         tagsToInvalidate.push({ type: "Applications", id: `LIST-PENDING` });
         tagsToInvalidate.push({ type: "Applications", id: `LIST-APPROVED` });
@@ -111,7 +115,6 @@ export const applicationApi = baseApi.injectEndpoints({
       Application,
       Partial<CreateApplicationData>
     >({
-      //need FormData to construct a req body that contains both file data and regular from data.
       query: (body) => ({
         url: `applications`,
         method: "POST",

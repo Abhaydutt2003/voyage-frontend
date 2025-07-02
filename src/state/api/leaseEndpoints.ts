@@ -31,7 +31,31 @@ export const leaseApi = baseApi.injectEndpoints({
         },
       }),
     }),
+    reviewLeaseProperty: build.mutation<
+      void,
+      { leaseId: number; propertyId: number; reviewRating: number }
+    >({
+      query: (reviewBody) => ({
+        url: "leases/reviewLeaseProperty",
+        method: "POST",
+        body: reviewBody,
+      }),
+      invalidatesTags: (_result, _error, { leaseId }) => [
+        { type: "Leases", id: leaseId },
+        { type: "Leases", id: "LIST" },
+      ],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          success: "Lease reviewed successfully!",
+          error: "Failed to review lease.",
+        });
+      },
+    }),
   }),
 });
 
-export const { useGetPropertyLeasesQuery, useGetAcceptedLeaseQuery } = leaseApi;
+export const {
+  useGetPropertyLeasesQuery,
+  useGetAcceptedLeaseQuery,
+  useReviewLeasePropertyMutation,
+} = leaseApi;

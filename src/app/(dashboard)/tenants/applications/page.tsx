@@ -59,16 +59,15 @@ const Applications = () => {
 
   useEffect(() => {
     if (paginatedApplications?.applications) {
-      setApplications((prev: Application[]) => {
-        if (!afterCursor) return paginatedApplications.applications;
-        const prevIds = new Set(prev.map((a) => a.id));
-        const newApps = paginatedApplications.applications.filter(
-          (a) => !prevIds.has(a.id)
-        );
-        return [...prev, ...newApps];
+      setApplications((prev) => {
+        if (afterCursor === null) {
+          return [...paginatedApplications.applications];
+        } else {
+          return [...prev, ...paginatedApplications.applications];
+        }
       });
     }
-  }, [paginatedApplications, afterCursor]);
+  }, [paginatedApplications]);
 
   if (isLoading) return <Loading />;
   if (isError || !applications)

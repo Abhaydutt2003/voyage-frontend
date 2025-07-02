@@ -23,13 +23,17 @@ const SingleListing = () => {
     isLoading,
   } = useGetPropertyQuery(propertyId);
 
-  const propertyImages = property?.photoUrlsBaseKeys || [
-    "/singlelisting-2.jpg",
-    "/singlelisting-3.jpg",
-  ];
+  const propertyImages =
+    property?.photoUrlsBaseKeys && property?.photoUrlsBaseKeys?.length > 0
+      ? property?.photoUrlsBaseKeys
+      : ["/singlelisting-2.jpg", "/singlelisting-3.jpg"];
 
   if (isLoading) {
     return <Loading></Loading>;
+  }
+
+  if (isError) {
+    return <>Failed to load the property...</>;
   }
 
   return (
