@@ -15,7 +15,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   useDownloadAgreementMutation,
@@ -38,70 +37,37 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-
-// Star Rating Component
-const StarRating = ({
-  rating,
-  onRatingChange,
-  hoveredRating,
-  onHover,
-  onLeave,
-}: {
-  rating: number;
-  onRatingChange: (rating: number) => void;
-  hoveredRating: number;
-  onHover: (rating: number) => void;
-  onLeave: () => void;
-}) => {
-  return (
-    <div className="flex items-center space-x-1">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => onRatingChange(star)}
-          onMouseEnter={() => onHover(star)}
-          onMouseLeave={onLeave}
-          className="hover:scale-110 transition-transform"
-        >
-          <Star
-            className={`w-6 h-6 ${
-              star <= (hoveredRating || rating)
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-300"
-            }`}
-          />
-        </button>
-      ))}
-    </div>
-  );
-};
+import { useReviewLeasePropertyMutation } from "@/state/api/leaseEndpoints";
 
 const ReviewModal = ({
   leaseId,
   isOpen,
   onClose,
+  onReviewSuccess,
 }: {
   leaseId: number;
   isOpen: boolean;
   onClose: () => void;
+  onReviewSuccess: (leaseId: number) => void;
 }) => {
+  const { id } = useParams();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviewLeaseProperty] = useReviewLeasePropertyMutation();
 
   const handleSubmit = async () => {
     if (rating === 0) return;
-
     setIsSubmitting(true);
-    try {
-      setRating(0);
-      onClose();
-    } catch (error) {
-      console.error("Error submitting review:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    setRating(0);
+    await reviewLeaseProperty({
+      leaseId,
+      propertyId: parseInt(id?.toString() || ""),
+      reviewRating: rating,
+    });
+    onReviewSuccess(leaseId);
+    onClose();
+    setIsSubmitting(false);
   };
 
   const getRatingText = () => {
@@ -135,13 +101,26 @@ const ReviewModal = ({
           <div className="space-y-2">
             <label className="text-sm font-medium">Rating</label>
             <div className="flex flex-col items-center space-y-2">
-              <StarRating
-                rating={rating}
-                onRatingChange={setRating}
-                hoveredRating={hoveredRating}
-                onHover={setHoveredRating}
-                onLeave={() => setHoveredRating(0)}
-              />
+              <div className="flex items-center space-x-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoveredRating(star)}
+                    onMouseLeave={() => setHoveredRating(0)}
+                    className="hover:scale-110 transition-transform"
+                  >
+                    <Star
+                      className={`w-6 h-6 ${
+                        star <= (hoveredRating || rating)
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
               <p className="text-sm text-gray-600 font-medium">
                 {getRatingText()}
               </p>
@@ -171,22 +150,87 @@ const ReviewModal = ({
   );
 };
 
-const Residence = () => {
+const PropertyDetail = () => {
   const { id } = useParams();
-
-  const { data: authUser } = useGetAuthUserQuery();
-  const [afterCursor, setAfterCursor] = useState<string | null>(null);
-  const [applications, setApplications] = useState<ApplicationWithLease[]>([]);
-  const [downloadAgreement] = useDownloadAgreementMutation();
-  const [isRatingLoading, setIsRatingLoading] = useState(false);
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [selectedLeaseId, setSelectedLeaseId] = useState<number | null>(null);
-
   const {
     data: property,
     isLoading: propertyLoading,
     error: propertyError,
   } = useGetPropertyQuery(Number(id));
+
+  const [imgSrc, setImgSrc] = useState("/placeholder.jpg");
+
+  useEffect(() => {
+    if (property?.photoUrlsBaseKeys?.[0]) {
+      setImgSrc(property?.photoUrlsBaseKeys?.[0]);
+    }
+  }, [property]);
+
+  if (propertyLoading) return <Loading />;
+  if (propertyError || !property) return <div>Error loading property</div>;
+
+  return (
+    <div className="flex gap-5 flex-1">
+      <Image
+        src={imgSrc}
+        alt={property.name}
+        width={500}
+        height={250}
+        className="rounded-xl object-cover w-full lg:w-[500px] h-[250px]"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        onError={() => setImgSrc("/placeholder.jpg")}
+      />
+      {/* <div className="w-64 h-32 object-cover bg-slate-500 rounded-xl" /> */}
+      <div className="flex flex-col justify-between flex-1">
+        <div>
+          <h2 className="text-2xl font-bold my-2">{property.name}</h2>
+          <div className="flex items-center mb-2 text-gray-600">
+            <MapPin className="w-5 h-5 mr-1" />
+            <span>
+              {property.location.city}, {property.location.state},{" "}
+              {property.location.country}
+            </span>
+          </div>
+          <p className="text-gray-600 mb-3">{property.description}</p>
+          <div className="flex flex-wrap gap-4 mb-3">
+            <div className="flex items-center text-gray-600">
+              <Home className="w-4 h-4 mr-1" />
+              <span className="text-sm">{property.propertyType}</span>
+            </div>
+            <div className="flex items-center text-gray-600">
+              <Bed className="w-4 h-4 mr-1" />
+              <span className="text-sm">{property.beds} beds</span>
+            </div>
+            <div className="flex items-center text-gray-600">
+              <Bath className="w-4 h-4 mr-1" />
+              <span className="text-sm">{property.baths} baths</span>
+            </div>
+            {property.squareFeet && (
+              <div className="flex items-center text-gray-600">
+                <Users className="w-4 h-4 mr-1" />
+                <span className="text-sm">{property.squareFeet} sq ft</span>
+              </div>
+            )}
+          </div>
+          <div className="text-xl font-bold text-green-600">
+            ${property.pricePerNight}{" "}
+            <span className="text-gray-500 text-sm font-normal">/ night</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Residence = () => {
+  const { id } = useParams();
+
+  const { data: authUser } = useGetAuthUserQuery();
+  const [downloadAgreement] = useDownloadAgreementMutation();
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [afterCursor, setAfterCursor] = useState<string | null>(null);
+  const [selectedLeaseId, setSelectedLeaseId] = useState<number | null>(null);
+  const [applications, setApplications] = useState<ApplicationWithLease[]>([]);
 
   const {
     data: paginatedApplications,
@@ -199,29 +243,24 @@ const Residence = () => {
       status: "Approved",
       limit: 5,
       afterCursor: afterCursor,
+      ...(id && { propertyId: id.toString() }),
     },
     {
       skip: !authUser?.cognitoInfo?.userId,
     }
   );
 
-  const [imgSrc, setImgSrc] = useState(
-    property?.photoUrlsBaseKeys?.[0] || "/placeholder.jpg"
-  );
-
-  //TODO look into what this does.
   useEffect(() => {
     if (paginatedApplications?.applications) {
-      setApplications((prev: ApplicationWithLease[]) => {
-        if (!afterCursor) return paginatedApplications.applications;
-        const prevIds = new Set(prev.map((a) => a.id));
-        const newApps = paginatedApplications.applications.filter(
-          (a) => !prevIds.has(a.id)
-        );
-        return [...prev, ...newApps];
+      setApplications((prev) => {
+        if (afterCursor === null) {
+          return [...paginatedApplications.applications];
+        } else {
+          return [...prev, ...paginatedApplications.applications];
+        }
       });
     }
-  }, [paginatedApplications, afterCursor]);
+  }, [paginatedApplications]);
 
   const loadMore = () => {
     if (paginatedApplications?.hasMore && paginatedApplications?.nextCursor) {
@@ -264,67 +303,30 @@ const Residence = () => {
     setSelectedLeaseId(null);
   };
 
-  if (propertyLoading || isLoading) return <Loading />;
-  if (propertyError || isError || !property)
-    return <div>Error loading property</div>;
+  const handleReviewSuccess = (leaseId: number) => {
+    setApplications((prev) =>
+      prev.map((app) =>
+        app.lease && app.lease.id === leaseId
+          ? {
+              ...app,
+              lease: {
+                ...app.lease,
+                reviewAdded: true,
+              },
+            }
+          : app
+      )
+    );
+  };
+
+  if (isLoading) return <Loading />;
+  if (isError) return <div>Error loading applications</div>;
 
   return (
     <div className="pt-8 pb-5 px-8">
       <div className="flex gap-8 mb-6">
-        {/* Property Information */}
-        <div className="flex gap-5 flex-1">
-          <Image
-            src={property.photoUrlsBaseKeys[0]}
-            alt={property.name}
-            width={500}
-            height={250}
-            className="rounded-xl object-cover w-full lg:w-[500px] h-[250px]"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            onError={() => setImgSrc("/placeholder.jpg")}
-          />
-          {/* <div className="w-64 h-32 object-cover bg-slate-500 rounded-xl" /> */}
-          <div className="flex flex-col justify-between flex-1">
-            <div>
-              <h2 className="text-2xl font-bold my-2">{property.name}</h2>
-              <div className="flex items-center mb-2 text-gray-600">
-                <MapPin className="w-5 h-5 mr-1" />
-                <span>
-                  {property.location.city}, {property.location.state},{" "}
-                  {property.location.country}
-                </span>
-              </div>
-              <p className="text-gray-600 mb-3">{property.description}</p>
-              <div className="flex flex-wrap gap-4 mb-3">
-                <div className="flex items-center text-gray-600">
-                  <Home className="w-4 h-4 mr-1" />
-                  <span className="text-sm">{property.propertyType}</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <Bed className="w-4 h-4 mr-1" />
-                  <span className="text-sm">{property.beds} beds</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <Bath className="w-4 h-4 mr-1" />
-                  <span className="text-sm">{property.baths} baths</span>
-                </div>
-                {property.squareFeet && (
-                  <div className="flex items-center text-gray-600">
-                    <Users className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{property.squareFeet} sq ft</span>
-                  </div>
-                )}
-              </div>
-              <div className="text-xl font-bold text-green-600">
-                ${property.pricePerNight}{" "}
-                <span className="text-gray-500 text-sm font-normal">
-                  / night
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PropertyDetail />
       </div>
-
       <div className="w-full space-y-6">
         <div className="mt-8 bg-white rounded-xl shadow-md overflow-hidden p-6">
           <div className="flex justify-between items-center mb-4">
@@ -450,6 +452,7 @@ const Residence = () => {
           leaseId={selectedLeaseId}
           isOpen={reviewModalOpen}
           onClose={closeReviewModal}
+          onReviewSuccess={handleReviewSuccess}
         />
       )}
     </div>

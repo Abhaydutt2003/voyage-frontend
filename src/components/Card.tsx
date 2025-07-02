@@ -91,11 +91,11 @@ const Card = ({
         <div className="flex justify-between items-center gap-4 text-gray-600 mt-5">
           <span className="flex items-center">
             <Bed className="w-5 h-5 mr-2" />
-            {property.beds} Bed
+            {property.beds} Bed{`${property.beds > 1 ? "s" : ""}`}
           </span>
           <span className="flex items-center">
             <Bath className="w-5 h-5 mr-2" />
-            {property.baths} Bath
+            {property.baths} Bath{`${property.baths > 1 ? "s" : ""}`}
           </span>
           <span className="flex items-center">
             <House className="w-5 h-5 mr-2" />

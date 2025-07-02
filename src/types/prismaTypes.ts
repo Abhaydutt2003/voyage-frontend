@@ -132,12 +132,10 @@ export interface Lease {
   id: number;
   startDate: string;
   endDate: string;
-  deposit: number;
   propertyId: number;
   tenantCognitoId: string;
-  property: Property;
-  tenant: Tenant;
+  property?: Property;
+  tenant?: Tenant;
   application?: Application;
-  nextPaymentDate?: string;
   reviewAdded: boolean;
 }
