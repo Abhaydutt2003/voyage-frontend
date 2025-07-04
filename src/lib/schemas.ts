@@ -19,11 +19,6 @@ export const propertySchema = z.object({
   baths: z.coerce.number().positive().min(0).max(10).int(),
   squareFeet: z.coerce.number().int().positive(),
   propertyType: z.nativeEnum(PropertyTypeEnum),
-  // address: z.string().min(1, "Address is required"),
-  // city: z.string().min(1, "City is required"),
-  // state: z.string().min(1, "State is required"),
-  // country: z.string().min(1, "Country is required"),
-  // postalCode: z.string().min(1, "Postal code is required"),
 });
 
 export type PropertyFormData = z.infer<typeof propertySchema>;

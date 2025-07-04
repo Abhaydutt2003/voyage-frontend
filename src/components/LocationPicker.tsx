@@ -17,34 +17,69 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 const DEFAULT_CENTER = [78.9629, 20.5937];
 const DEFAULT_ZOOM = 4;
 
-type LocaitonPickerProps = {
-  onLocationPicked: (
-    locationData: PropertyLocationData & {
-      longitude: string;
-      latitude: string;
-    }
-  ) => Promise<void>;
-};
+export interface PropertyCoordinatesData {
+  lon: number;
+  lat: number;
+}
 
 // Helper function to make geocoding request
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const makeGeocodingRequest = async (params: Record<string, any>) => {
-  const url = `https://nominatim.openstreetmap.org/search?${new URLSearchParams(
-    params
-  ).toString()}`;
-  const response = await fetch(url);
-  return await response.json();
+const getCoordinates = async (data: PropertyLocationData) => {
+  const searchStrategies = [
+    // Most specific: with street address
+    {
+      street: data.address,
+      city: data.city,
+      country: data.country,
+      postalcode: data.postalCode,
+      format: "json",
+      limit: "1",
+    },
+    // Fallback: without street address(happens when nominatim cannot recognize the street address)
+    {
+      city: data.city,
+      country: data.country,
+      postalcode: data.postalCode,
+      format: "json",
+      limit: "1",
+    },
+  ];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const makeGeocodingRequest = async (params: Record<string, any>) => {
+    const url = `https://nominatim.openstreetmap.org/search?${new URLSearchParams(
+      params
+    ).toString()}`;
+    const response = await fetch(url);
+    return await response.json();
+  };
+  let geoCodingData: {
+    lat: string;
+    lon: string;
+  }[] = [];
+  for (const strategy of searchStrategies) {
+    const responseData = await makeGeocodingRequest(strategy);
+    if (responseData && responseData.length > 0) {
+      geoCodingData = responseData;
+    }
+  }
+  return geoCodingData;
 };
 
-const LocationPicker = ({ onLocationPicked }: LocaitonPickerProps) => {
+const LocationPicker = ({
+  onLocationPicked,
+}: {
+  onLocationPicked: (
+    propertyLocaitonData: PropertyLocationData,
+    coordinatesData: PropertyCoordinatesData
+  ) => Promise<void>;
+}) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef<Map | null>(null);
   const markerRef = useRef<Marker | null>(null);
 
-  const [currentLocation, setCurrentLocation] = useState<{
-    lon: number;
-    lat: number;
-  } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const [currentLocation, setCurrentLocation] =
+    useState<PropertyCoordinatesData | null>(null);
 
   const [propertyLocationData, setPropertyLocationData] =
     useState<PropertyLocationData | null>(null);
@@ -99,37 +134,7 @@ const LocationPicker = ({ onLocationPicked }: LocaitonPickerProps) => {
       // Show loading toast and keep its ID
       const toastId = toast.loading("Fetching address...");
 
-      const searchStrategies = [
-        // Most specific: with street address
-        {
-          street: data.address,
-          city: data.city,
-          country: data.country,
-          postalcode: data.postalCode,
-          format: "json",
-          limit: "1",
-        },
-        // Fallback: without street address(happens when nominatim cannot recognize the street address)
-        {
-          city: data.city,
-          country: data.country,
-          postalcode: data.postalCode,
-          format: "json",
-          limit: "1",
-        },
-      ];
-
-      let geoCodingData: {
-        lat: string;
-        lon: string;
-      }[] = [];
-      for (const strategy of searchStrategies) {
-        const responseData = await makeGeocodingRequest(strategy);
-        if (responseData && responseData.length > 0) {
-          geoCodingData = responseData;
-        }
-      }
-
+      const geoCodingData = await getCoordinates(data);
       // Dismiss the loading toast
       toast.dismiss(toastId);
 
@@ -164,14 +169,10 @@ const LocationPicker = ({ onLocationPicked }: LocaitonPickerProps) => {
     [mapRef, markerRef, setCurrentLocation]
   );
 
-  const createProperty = () => {
-    if (propertyLocationData) {
-      onLocationPicked({
-        ...propertyLocationData,
-        longitude: currentLocation!.lon.toString(),
-        latitude: currentLocation!.lat.toString(),
-      });
-    }
+  const onCreateProperty = () => {
+    setIsSubmitting(true);
+    onLocationPicked(propertyLocationData!, currentLocation!);
+    setIsSubmitting(false);
   };
 
   return (
@@ -202,20 +203,23 @@ const LocationPicker = ({ onLocationPicked }: LocaitonPickerProps) => {
                 Search Address
               </Button>
               {currentLocation && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full mt-2 border-primary-700 text-primary-700 hover:bg-primary-50 font-semibold shadow cursor-pointer"
-                  onClick={() => createProperty()}
-                >
-                  Create Property
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-2 border-primary-700 text-primary-700 hover:bg-primary-50 font-semibold shadow cursor-pointer"
+                    onClick={onCreateProperty}
+                    disabled={isSubmitting}
+                  >
+                    Create Property
+                  </Button>
+                  <span className="flex items-center gap-2 text-neutral-500">
+                    <InfoIcon className="size-4 " />
+                    To ensure accuracy, please pinpoint the exact location on
+                    the map
+                  </span>
+                </>
               )}
-              <span className="flex items-center gap-2 text-neutral-500">
-                <InfoIcon className="size-4 " />
-                To ensure accuracy, please pinpoint the exact location on the
-                map
-              </span>
             </div>
           </form>
         </Form>

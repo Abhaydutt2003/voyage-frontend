@@ -2,17 +2,20 @@ import { Property } from "@/types/prismaTypes";
 import { FiltersState } from "..";
 import { cleanParams, withToast } from "@/lib/utils";
 import { baseApi } from "./api";
-import { PropertyFormData } from "@/lib/schemas";
+import { PropertyFormData, PropertyLocationData } from "@/lib/schemas";
 
 export type PropertyCreationData = Omit<
   PropertyFormData,
   "propertyImages" | "amenities" | "highlights"
-> & {
-  photoUrlsBaseKeys: string[];
-  managerCognitoId: string;
-  highlights: string;
-  amenities: string;
-};
+> &
+  PropertyLocationData & {
+    photoUrlsBaseKeys: string[];
+    managerCognitoId: string;
+    highlights: string;
+    amenities: string;
+    longitude: string;
+    latitude: string;
+  };
 
 export const propertyApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

@@ -20,16 +20,17 @@ import { Amenity, Highlight } from "@/types/prismaTypes";
 import { PropertyTypeEnum } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import useUploadFile from "@/hooks/useFileUpload";
-import { Loader2Icon } from "lucide-react";
-import LocationPicker from "@/components/LocationPicker";
+import LocationPicker, {
+  PropertyCoordinatesData,
+} from "@/components/LocationPicker";
+import { toast } from "sonner";
 
 const NewProperty = () => {
   const [createProperty] = useCreatePropertyMutation();
   const { data: authUser } = useGetAuthUserQuery();
   const router = useRouter();
   const { uploadFiles } = useUploadFile();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [pendingFormData, setPendingFormData] =
+  const [propertyFormData, setPropertyFormData] =
     useState<PropertyFormData | null>(null);
 
   const [showLocationPicker, setShowLocationPicker] = useState(false);
@@ -52,50 +53,55 @@ const NewProperty = () => {
     },
   });
 
-  // const onSubmit = async (data: PropertyFormData) => {
-  //   if (!authUser?.cognitoInfo?.userId) {
-  //     throw new Error("No manager ID found");
-  //   }
-  //   setShowLocationPicker(true);
-  // };
-
   const onSubmit = (data: PropertyFormData) => {
     if (!authUser?.cognitoInfo?.userId) {
       throw new Error("No manager ID found");
     }
-    setPendingFormData(data);
+    setPropertyFormData(data);
     setShowLocationPicker(true);
   };
 
-  const handleLocationPicked = async (
-    locationData: PropertyLocationData & { longitude: string; latitude: string }
+  const onCreateProperty = async (
+    propertyLocaitonData: PropertyLocationData,
+    coordinatesData: PropertyCoordinatesData
   ) => {
-    if (!pendingFormData) return;
-    setIsSubmitting(true);
-    try {
-      // Combine form data and location data as needed for your API
-      // await createProperty({
-      //   ...pendingFormData,
-      //   ...locationData,
-      //   managerId: authUser.cognitoInfo.userId,
-      // });
-      // Optionally redirect or reset form
-      console.log(pendingFormData);
-      console.log(locationData);
-      // router.push("/dashboard/managers/properties");
-    } catch (e) {
-      // handle error
-    } finally {
-      setIsSubmitting(false);
-      // setShowLocationPicker(false);
-      setPendingFormData(null);
+    if (!propertyLocaitonData || !coordinatesData || !propertyFormData) {
+      toast.error("Failed to create property!");
+      return;
     }
+    const toastId = toast.loading("Creating Property...");
+    const baseKeys = await uploadFiles({
+      files: propertyFormData?.propertyImages,
+      uploadType: "propertyImage",
+    });
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      propertyImages,
+      amenities,
+      highlights,
+      ...dataWithoutPropertyImages
+    } = propertyFormData;
+
+    const propertyCreationData: PropertyCreationData = {
+      ...dataWithoutPropertyImages,
+      ...propertyLocaitonData,
+      longitude: coordinatesData.lon.toString(), //ensuring consistency, sending everything as a string to the backend
+      latitude: coordinatesData.lat.toString(),
+      highlights: JSON.stringify(highlights),
+      amenities: JSON.stringify(amenities),
+      photoUrlsBaseKeys: baseKeys,
+      managerCognitoId: authUser!.cognitoInfo.userId,
+    };
+    await createProperty(propertyCreationData);
+    toast.dismiss(toastId);
+    toast.success("Property created successfully!");
+    router.push("/managers/properties");
   };
 
   return (
     <div className="pt-8 pb-5 px-8">
       {showLocationPicker ? (
-        <LocationPicker onLocationPicked={handleLocationPicked} />
+        <LocationPicker onLocationPicked={onCreateProperty} />
       ) : (
         <>
           <Header
@@ -223,33 +229,11 @@ const NewProperty = () => {
 
                 <hr className="my-6 border-gray-200" />
 
-                {/* Property Address */}
-                {/* <div className="space-y-6">
-              <h2 className="text-lg font-semibold mb-4">Property Address</h2>
-              <CustomFormField name="address" label="Street Address" />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <CustomFormField name="city" label="City" />
-                <CustomFormField name="state" label="State/Province" />
-                <CustomFormField name="postalCode" label="Postal Code" />
-              </div>
-              <CustomFormField name="country" label="Country" />
-            </div> */}
-
-                {/* <LocationPicker></LocationPicker> */}
-
                 <Button
                   type="submit"
                   className="bg-primary-700 text-white w-full"
-                  disabled={isSubmitting}
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2Icon className="animate-spin" />
-                      Submitting
-                    </>
-                  ) : (
-                    <>Select Location</>
-                  )}
+                  <>Select Location</>
                 </Button>
               </form>
             </Form>
