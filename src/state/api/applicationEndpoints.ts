@@ -16,6 +16,15 @@ export type CreateApplicationData = Pick<
     propertyId: string;
   };
 
+export type GetApplicationFilter = {
+  status: string;
+  userId?: string;
+  userType?: string;
+  limit?: number;
+  afterCursor?: string | null;
+  propertyId?: string;
+};
+
 export const applicationApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getApplications: build.query<
@@ -24,14 +33,7 @@ export const applicationApi = baseApi.injectEndpoints({
         hasMore: boolean;
         nextCursor: string | null;
       },
-      {
-        status: string;
-        userId?: string;
-        userType?: string;
-        limit?: number;
-        afterCursor?: string | null;
-        propertyId?: string;
-      }
+      GetApplicationFilter
     >({
       query: (params) => {
         const queryParams = new URLSearchParams();
@@ -170,6 +172,34 @@ export const applicationApi = baseApi.injectEndpoints({
         });
       },
     }),
+    downloadPropertyAgreements: build.mutation<string, { propertyId: number }>({
+      queryFn: async ({ propertyId }, _api, _extraOptions, baseQuery) => {
+        const result = await baseQuery({
+          url: `applications/agreements?propertyId=${Number(propertyId)}`,
+          method: "GET",
+          responseHandler: (response) => response.blob(), // Function that returns a Promise<Blob>
+        });
+        const blob = result.data as Blob;
+
+        // Trigger download immediately
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `filename=property-${propertyId}-Agreements.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        return { data: "download initiated" };
+      },
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          success: "Agreement download initiated!",
+          error:
+            "Failed to download agreement. Please try again or contact support.",
+        });
+      },
+    }),
   }),
   overrideExisting: false,
 });
@@ -179,4 +209,5 @@ export const {
   useCreateApplicationMutation,
   useUpdateApplicationStatusMutation,
   useDownloadAgreementMutation,
+  useDownloadPropertyAgreementsMutation,
 } = applicationApi;
