@@ -11,6 +11,7 @@ import { Amplify } from "aws-amplify";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import RouteGaurd from "./RouteGaurd";
+import { Map } from "lucide-react";
 
 Amplify.configure({
   Auth: {
@@ -25,10 +26,13 @@ Amplify.configure({
 const components = {
   Header() {
     return (
-      <View className="mt-4 mb-7">
-        <Heading level={3} className="!text-2xl !font-bold">
-          VOYAGE
-        </Heading>
+      <View className="mt-4 mb-7 ">
+        <div className="flex flex-row items-center gap-3">
+          <Map className=" w-6 h-6" />
+          <Heading level={3} className="!text-2xl !font-bold flex flex-row">
+            <span>VOYAGE</span>
+          </Heading>
+        </div>
         <p className="text-muted-foreground mt-2">
           <span className="font-bold">Welcome!</span> Please sign in to continue
         </p>
@@ -56,7 +60,6 @@ const components = {
   SignUp: {
     FormFields() {
       const { validationErrors } = useAuthenticator();
-
       return (
         <>
           <Authenticator.SignUp.FormFields />
@@ -109,27 +112,35 @@ const formFields = {
   signUp: {
     username: {
       order: 1,
-      placeholder: "Choose a username",
+      placeholder: "john_doe123",
       label: "Username",
       isRequired: true,
+      pattern: "[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+",
+      descriptiveText: "Letters, numbers, symbols, and punctuation allowed.",
     },
     email: {
       order: 2,
-      placeholder: "Enter your email address",
+      placeholder: "john@example.com",
       label: "Email",
       isRequired: true,
+      descriptiveText:
+        "We'll use this for account verification and important updates",
     },
     password: {
       order: 3,
-      placeholder: "Create a password",
+      placeholder: "Create a strong password",
       label: "Password",
       isRequired: true,
+      pattern: "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+      descriptiveText:
+        "Use at least 8 characters with a mix of letters, numbers, and symbols",
     },
     confirm_password: {
       order: 4,
       placeholder: "Confirm your password",
       label: "Confirm Password",
       isRequired: true,
+      descriptiveText: "Please enter the same password again to confirm",
     },
   },
 };
