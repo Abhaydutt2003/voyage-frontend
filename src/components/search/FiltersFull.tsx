@@ -3,12 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { AmenityIcons, PropertyTypeIcons } from "@/lib/constants";
 import { cn, formatEnumString } from "@/lib/utils";
-import { initialState, setFilters } from "@/state";
+import { initialState } from "@/state";
 import { searchLocationsOnMapbox } from "@/state/api/mapbox";
 import { useAppSelector } from "@/state/redux";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { BedBathSelector } from "./BedBathSelector";
 import { Label } from "@/components/ui/label";
 import useUpdateUrl from "@/hooks/useUpdateUrl";
@@ -16,7 +15,6 @@ import { Amenity } from "@/types/prismaTypes";
 
 const FiltersFull = () => {
   const { updateURL } = useUpdateUrl();
-  const dispatch = useDispatch();
 
   const globalFiltersState = useAppSelector((state) => state.global.filters); //to get the global filter state.
   const [localFilters, setLocalFilters] = useState(initialState.filters);
@@ -35,12 +33,12 @@ const FiltersFull = () => {
       );
       if (searchLocationData?.center) {
         const [lng, lat] = searchLocationData.center;
-        dispatch(
-          setFilters({
-            location: localFilters.location,
-            coordinates: [lng, lat],
-          })
-        );
+        const newFilters = {
+          ...localFilters,
+          location: localFilters.location,
+          coordinates: [lng, lat] as [number, number],
+        };
+        updateURL(newFilters);
       }
     } catch (error) {
       console.error("Error search location:", error);
@@ -57,13 +55,11 @@ const FiltersFull = () => {
   };
 
   const handleSubmit = () => {
-    dispatch(setFilters(localFilters));
     updateURL(localFilters);
   };
 
   const handleReset = () => {
     setLocalFilters(initialState.filters);
-    dispatch(setFilters(initialState.filters));
     updateURL(initialState.filters);
   };
 

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: propertyMeta.metaDescription,
     openGraph: {
       title: propertyMeta.name,
-      description: propertyMeta.description,
+      description: `Voyage | ${propertyMeta.description}`,
       images: propertyMeta.photoUrlsBaseKeys,
       type: "website",
     },

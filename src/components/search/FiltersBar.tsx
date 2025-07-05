@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { PropertyTypeIcons } from "@/lib/constants";
 import { cn, formatPriceValue } from "@/lib/utils";
-import { setFilters, setViewMode, toggleFiltersFullOpen } from "@/state";
+import { setViewMode, toggleFiltersFullOpen } from "@/state";
 import { searchLocationsOnMapbox } from "@/state/api/mapbox";
 import { useAppSelector } from "@/state/redux";
 import { Filter, Grid, List, Search } from "lucide-react";
@@ -87,7 +87,6 @@ const FiltersBar = () => {
       newValue = value === "any" ? "any" : value;
     }
     const newFilters = { ...filters, [key]: newValue };
-    dispatch(setFilters(newFilters));
     updateURL(newFilters);
   };
 
@@ -101,7 +100,6 @@ const FiltersBar = () => {
           location: searchInput,
           coordinates: [lng, lat] as [number, number],
         };
-        dispatch(setFilters(newFilters));
         updateURL(newFilters);
       }
     } catch (error) {
