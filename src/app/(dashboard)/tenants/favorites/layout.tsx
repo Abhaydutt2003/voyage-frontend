@@ -1,33 +1,12 @@
-import type { Metadata } from "next";
+import { generateDashboardMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Favorited Properties | Voyage Tenant Dashboard",
+export const metadata = generateDashboardMetadata({
+  title: "Favorited Properties",
   description:
     "Browse and manage your saved property listings. View all your favorited properties in one convenient location.",
-  openGraph: {
-    title: "Favorited Properties | Voyage Tenant Dashboard",
-    description:
-      "Browse and manage your saved property listings. View all your favorited properties in one convenient location.",
-    siteName: "Voyage",
-    images: [
-      {
-        url: "/voyage.png",
-        width: 1200,
-        height: 630,
-        alt: "Voyage - Favorited Properties",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Favorited Properties | Voyage Tenant Dashboard",
-    description:
-      "Browse and manage your saved property listings. View all your favorited properties in one convenient location.",
-    images: ["/voyage.png"],
-  },
-};
+  userType: "Tenant",
+  pageName: "Favorited Properties",
+});
 
 export default function TenantFavoritesLayout({
   children,
