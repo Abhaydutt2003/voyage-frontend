@@ -1,33 +1,12 @@
-import type { Metadata } from "next";
+import { generateDashboardMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Add New Property | Voyage Manager Dashboard",
+export const metadata = generateDashboardMetadata({
+  title: "Add New Property",
   description:
     "Create a new property listing with detailed information including amenities, photos, and location.",
-  openGraph: {
-    title: "Add New Property | Voyage Manager Dashboard",
-    description:
-      "Create a new property listing with detailed information including amenities, photos, and location.",
-    siteName: "Voyage",
-    images: [
-      {
-        url: "/voyage.png",
-        width: 1200,
-        height: 630,
-        alt: "Voyage - Add New Property",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Add New Property | Voyage Manager Dashboard",
-    description:
-      "Create a new property listing with detailed information including amenities, photos, and location.",
-    images: ["/voyage.png"],
-  },
-};
+  userType: "Manager",
+  pageName: "Add New Property",
+});
 
 export default function NewPropertyLayout({
   children,
