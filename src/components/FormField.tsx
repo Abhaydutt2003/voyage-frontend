@@ -1,4 +1,3 @@
-//TODO tinker around with this component
 import React from "react";
 import {
   ControllerRenderProps,
@@ -95,12 +94,10 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
   type = "text",
   placeholder,
   options,
-  accept,
   className,
   inputClassName,
   labelClassName,
   disabled = false,
-  multiple = false,
   isIcon = false,
   initialValue,
 }) => {

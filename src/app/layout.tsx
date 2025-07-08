@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://master.d3qoia8hz89za5.amplifyapp.com/"),
   title: "Voyage | Discover Your Next Home",
   description:
     "Voyage helps you find, apply, and manage your next rental property with ease.",
