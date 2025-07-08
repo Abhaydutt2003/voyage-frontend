@@ -1,5 +1,7 @@
 import { Metadata, ResolvingMetadata } from "next";
 import SearchPage from "./_SearchPage";
+import { Suspense } from "react";
+import Loading from "@/components/Loading";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -44,7 +46,11 @@ export async function generateMetadata(
 }
 
 const page = () => {
-  return <SearchPage />;
+  return (
+    <Suspense fallback={<Loading />}>
+      <SearchPage />
+    </Suspense>
+  );
 };
 
 export default page;

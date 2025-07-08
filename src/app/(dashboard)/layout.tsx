@@ -7,7 +7,7 @@ import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
 import Sidebar from "@/components/AppSidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const { data: authUser, isLoading: authLoading } = useGetAuthUserQuery();
+  const { data: authUser } = useGetAuthUserQuery();
 
   return (
     <SidebarProvider>
