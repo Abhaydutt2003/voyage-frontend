@@ -46,8 +46,6 @@ const Applications = () => {
     }
     await downloadAgreement({
       id: applicationId,
-      userId: authUser?.cognitoInfo.userId,
-      userType: authUser?.userRole,
     }).unwrap();
   };
 

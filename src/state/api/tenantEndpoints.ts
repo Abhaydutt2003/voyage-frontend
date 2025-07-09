@@ -23,7 +23,7 @@ const tenantApi = baseApi.injectEndpoints({
       },
     }),
     getCurrentResidences: build.query<Property[], string>({
-      query: (cognitoId) => `tenants/${cognitoId}/current-residences`,
+      query: (cognitoId) => `tenants/${cognitoId}/residences/current`,
       providesTags: (result) =>
         result
           ? [

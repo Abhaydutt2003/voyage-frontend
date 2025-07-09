@@ -26,7 +26,7 @@ import { ArrowDownToLine, Star, MessageSquare } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useReviewLeasePropertyMutation } from "@/state/api/leaseEndpoints";
+import { useReviewLeasePropertyMutation } from "@/state/api/propertyEndpoints";
 import PropertyOverview from "@/components/PropertyOverview";
 
 const ReviewModal = ({
@@ -200,8 +200,6 @@ const Residence = () => {
     }
     await downloadAgreement({
       id: applicationId,
-      userId: authUser?.cognitoInfo.userId,
-      userType: authUser?.userRole,
     }).unwrap();
   };
 

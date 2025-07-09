@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { format, isWithinInterval } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { useGetAcceptedLeaseQuery } from "@/state/api/leaseEndpoints";
+import { useGetAcceptedLeaseQuery } from "@/state/api/propertyEndpoints";
 import { useGetAuthUserQuery } from "@/state/api/authEndpoints";
 
 interface LeaseDateRangePickerProps {
