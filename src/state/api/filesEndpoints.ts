@@ -28,9 +28,11 @@ export const filesApi = baseApi.injectEndpoints({
       GetPresignedPutUrlsBody
     >({
       query: (bodyData) => ({
-        url: `files/files-upload/presigned-put-urls`,
+        url: `files/uploads/${bodyData.uploadType}/presigned-urls`,
         method: "POST",
-        body: bodyData,
+        body: {
+          filesInformation: bodyData.filesInformation,
+        },
       }),
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {

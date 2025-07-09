@@ -133,18 +133,10 @@ export const applicationApi = baseApi.injectEndpoints({
         });
       },
     }),
-    downloadAgreement: build.mutation<
-      string,
-      { id: number; userId: string; userType: string }
-    >({
-      queryFn: async (
-        { id, userId, userType },
-        _queryApi,
-        _extraOptions,
-        baseQuery
-      ) => {
+    downloadAgreement: build.mutation<string, { id: number }>({
+      queryFn: async ({ id }, _queryApi, _extraOptions, baseQuery) => {
         const result = await baseQuery({
-          url: `applications/${id}/agreement?userCognitoId=${userId}&userType=${userType}`,
+          url: `applications/${id}/agreement`,
           method: "GET",
           responseHandler: (response) => response.blob(), // Function that returns a Promise<Blob>
         });
@@ -175,7 +167,7 @@ export const applicationApi = baseApi.injectEndpoints({
     downloadPropertyAgreements: build.mutation<string, { propertyId: number }>({
       queryFn: async ({ propertyId }, _api, _extraOptions, baseQuery) => {
         const result = await baseQuery({
-          url: `applications/agreements?propertyId=${Number(propertyId)}`,
+          url: `applications/${propertyId}/agreements`,
           method: "GET",
           responseHandler: (response) => response.blob(), // Function that returns a Promise<Blob>
         });

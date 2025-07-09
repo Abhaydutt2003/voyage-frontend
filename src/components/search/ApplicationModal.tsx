@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { CustomFormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 import { LeaseDateRangePicker } from "./LeaseDateRangePicker";
 import { Loader2Icon } from "lucide-react";
@@ -83,47 +84,69 @@ const ApplicationModal = ({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-5 relative"
+            className="space-y-6 relative"
           >
-            <CustomFormField
-              name="name"
-              label="Name"
-              type="text"
-              placeholder="Enter your full name"
-            />
+            {/* Tenant Information Section */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Tenant Information
+                </h3>
+                <span className="text-sm text-gray-500">
+                  (Can be for yourself or someone else)
+                </span>
+              </div>
 
-            <CustomFormField
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="Enter your email address"
-            />
-            <CustomFormField
-              name="phoneNumber"
-              label="Phone Number"
-              type="text"
-              placeholder="Enter your phone number"
-            />
+              <CustomFormField
+                name="name"
+                label="Full Name"
+                type="text"
+                placeholder="Enter full name"
+              />
 
-            <LeaseDateRangePicker
-              form={form}
-              startDateFieldName="startDate"
-              endDateFieldName="endDate"
-              propertyId={propertyId}
-            />
+              <CustomFormField
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="Enter email address"
+              />
 
-            <CustomFormField
-              name="message"
-              label="Message (Optional)"
-              type="textarea"
-              placeholder="Enter any additional information"
-            />
+              <CustomFormField
+                name="phoneNumber"
+                label="Phone Number"
+                type="text"
+                placeholder="Enter phone number"
+              />
+            </div>
 
-            <CustomFormField
-              name="paymentProof"
-              label="Payment Proof"
-              type="file"
-            />
+            <Separator />
+
+            {/* Application Details Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Application Details
+              </h3>
+
+              <LeaseDateRangePicker
+                form={form}
+                startDateFieldName="startDate"
+                endDateFieldName="endDate"
+                propertyId={propertyId}
+              />
+
+              <CustomFormField
+                name="message"
+                label="Message (Optional)"
+                type="textarea"
+                placeholder="Enter any additional information about the application"
+              />
+
+              <CustomFormField
+                name="paymentProof"
+                label="Payment Proof"
+                type="file"
+              />
+            </div>
 
             <Button
               type="submit"
