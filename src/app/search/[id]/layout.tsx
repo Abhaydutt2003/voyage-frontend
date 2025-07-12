@@ -1,21 +1,9 @@
 import { Property, Location } from "@/types/prismaTypes";
 import { Metadata, ResolvingMetadata } from "next";
-import { headers } from "next/headers";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
-
-export async function generateStaticParams() {
-  const headersList = await headers();
-
-  // Set cache control headers for better bot caching
-  headersList.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
-  headersList.set("CDN-Cache-Control", "public, max-age=86400");
-  headersList.set("Vercel-CDN-Cache-Control", "public, max-age=86400");
-
-  return [];
-}
 
 type PropertyLight = Pick<
   Property,
@@ -31,6 +19,7 @@ export async function generateMetadata(
   const { id } = await params;
   const previousImages = (await parent).openGraph?.images || [];
 
+  //to add cache control headers, need to wrap this in the api routes.
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/properties/${id}/light`,
     { next: { revalidate: 3600, tags: [`property-${id}`] } }
