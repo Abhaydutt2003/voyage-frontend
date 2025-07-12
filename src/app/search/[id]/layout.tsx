@@ -1,22 +1,96 @@
-import { Metadata } from "next";
-import { getPropertyMeta } from "../../../lib/propertyMetaCache";
+import { Property, Location } from "@/types/prismaTypes";
+import { Metadata, ResolvingMetadata } from "next";
+// import { getPropertyMeta } from "../../../lib/propertyMetaCache";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+
+type PropertyLight = Pick<
+  Property,
+  "name" | "description" | "pricePerNight" | "photoUrlsBaseKeys"
+> & {
+  location: Pick<Location, "state" | "city" | "country">;
+};
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   const { id } = await params;
-  const propertyMeta = await getPropertyMeta(id);
-  return {
-    title: propertyMeta.seoTitle,
-    description: propertyMeta.metaDescription,
+  const previousImages = (await parent).openGraph?.images || [];
+
+  // Fetch property data first
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/properties/${id}/light`,
+    { next: { revalidate: 3600 } }
+  );
+
+  if (!response.ok) {
+    // Return fallback metadata if fetch fails
+    return {
+      title: "Property Listing",
+      description: "Property for rent/sale",
+      openGraph: {
+        title: "Property Listing",
+        description: `Voyage | Find your perfect property`,
+        images: previousImages,
+        type: "website",
+      },
+    };
+  }
+
+  const propertyLight: PropertyLight = await response.json();
+
+  const propertyImages =
+    propertyLight.photoUrlsBaseKeys?.length > 0
+      ? propertyLight.photoUrlsBaseKeys
+      : previousImages;
+
+  const locationParts = [
+    propertyLight.location?.city,
+    propertyLight.location?.state,
+    propertyLight.location?.country,
+  ].filter(Boolean);
+  const locationString =
+    locationParts.length > 0 ? ` in ${locationParts.join(", ")}` : "";
+
+  const priceString = propertyLight.pricePerNight
+    ? `$${propertyLight.pricePerNight}/night`
+    : "";
+
+  const propertyMeta: Metadata = {
+    title:
+      `${propertyLight.name} - ${propertyLight.location.country} - ${propertyLight.location.state} - ${propertyLight.location.city} - $${propertyLight.pricePerNight}` ||
+      "Property Listing",
+    description:
+      propertyLight.description ||
+      `Find your perfect property${locationString}${
+        priceString ? ` - ${priceString}` : ""
+      }`,
     openGraph: {
-      title: propertyMeta.name,
-      description: `Voyage | ${propertyMeta.description}`,
-      images: propertyMeta.photoUrlsBaseKeys,
+      title: propertyLight.name || "Property Listing",
+      description:
+        propertyLight.description ||
+        `Voyage | Find your perfect property${locationString}${
+          priceString ? ` - ${priceString}` : ""
+        }`,
+      images: propertyImages,
       type: "website",
     },
+    twitter: {
+      card: "summary_large_image",
+      title: propertyLight.name || "Property Listing",
+      description:
+        propertyLight.description ||
+        `Find your perfect property${locationString}${
+          priceString ? ` - ${priceString}` : ""
+        }`,
+      images: propertyImages,
+    },
   };
+
+  return propertyMeta;
 }
 
 const SinglePropertyLayout = ({ children }: { children: React.ReactNode }) => {
