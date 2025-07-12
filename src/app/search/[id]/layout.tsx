@@ -1,17 +1,8 @@
-import { Property, Location } from "@/types/prismaTypes";
+import { getPropertyLight } from "@/lib/getPropertyLight";
 import { Metadata, ResolvingMetadata } from "next";
-
-export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ id: string }>;
-};
-
-type PropertyLight = Pick<
-  Property,
-  "name" | "description" | "pricePerNight" | "photoUrlsBaseKeys"
-> & {
-  location: Pick<Location, "state" | "city" | "country">;
 };
 
 export async function generateMetadata(
@@ -21,13 +12,9 @@ export async function generateMetadata(
   const { id } = await params;
   const previousImages = (await parent).openGraph?.images || [];
 
-  //to add cache control headers, need to wrap this in the api routes.
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/properties/${id}/light`,
-    { next: { revalidate: 3600, tags: [`property-${id}`] } }
-  );
+  const propertyLight = await getPropertyLight(id);
 
-  if (!response.ok) {
+  if (!propertyLight) {
     // Return fallback metadata if fetch fails
     return {
       title: "Property Listing",
@@ -40,8 +27,6 @@ export async function generateMetadata(
       },
     };
   }
-
-  const propertyLight: PropertyLight = await response.json();
 
   const propertyImages =
     propertyLight.photoUrlsBaseKeys?.length > 0

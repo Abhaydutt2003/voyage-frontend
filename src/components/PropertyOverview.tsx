@@ -3,7 +3,8 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Loading from "./Loading";
 import Image from "next/image";
-import { Bath, Bed, Home, MapPin, Users } from "lucide-react";
+import { Bath, Bed, Home, MapPin, Users, Share2 } from "lucide-react";
+import { handleShare } from "@/lib/utils";
 
 const PropertyOverview = () => {
   const { id } = useParams();
@@ -35,10 +36,19 @@ const PropertyOverview = () => {
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         onError={() => setImgSrc("/placeholder.jpg")}
       />
-      {/* <div className="w-64 h-32 object-cover bg-slate-500 rounded-xl" /> */}
       <div className="flex flex-col justify-between flex-1">
         <div>
-          <h2 className="text-2xl font-bold my-2">{property.name}</h2>
+          <div className="flex justify-between items-start mb-2">
+            <h2 className="text-2xl font-bold">{property.name}</h2>
+            <button
+              className={`bg-white border border-gray-300 text-gray-700 py-2
+              px-4 rounded-md flex items-center justify-center hover:bg-primary-700 hover:text-primary-50 transition-colors cursor-pointer`}
+              onClick={async () => handleShare(id?.toString() || "")}
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              <span>Share This Property</span>
+            </button>
+          </div>
           <div className="flex items-center mb-2 text-gray-600">
             <MapPin className="w-5 h-5 mr-1" />
             <span>

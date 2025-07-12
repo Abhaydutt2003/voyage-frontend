@@ -125,3 +125,14 @@ export const debounce = <T extends (...args: any[]) => void>(
     }, delay);
   };
 };
+
+export const handleShare = async (propertyId: string) => {
+  const shareUrl = `${window.location.origin}/api/share/${propertyId}`;
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    toast.success("Link copied successfully!");
+  } catch (error) {
+    console.log(error);
+    toast.error("Failed to copy link");
+  }
+};
