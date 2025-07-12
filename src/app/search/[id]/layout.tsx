@@ -1,6 +1,8 @@
 import { Property, Location } from "@/types/prismaTypes";
 import { Metadata, ResolvingMetadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ id: string }>;
 };
