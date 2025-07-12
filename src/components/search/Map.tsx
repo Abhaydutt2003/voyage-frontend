@@ -24,7 +24,7 @@ const Map = () => {
       container: mapContainerRef.current!,
       style: "mapbox://styles/duttabhay/cmay2omma009a01qxcu81dcpg",
       center: filters.coordinates || [-74.5, 40],
-      zoom: 9,
+      zoom: 12,
     });
 
     properties.forEach((property) => {

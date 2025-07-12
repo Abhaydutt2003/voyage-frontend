@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { Bath, Bed, Heart, House, Star } from "lucide-react";
+import { Bath, Bed, Heart, House, Star, Share2 } from "lucide-react";
 import Link from "next/link";
+import { handleShare } from "@/lib/utils";
 
 const Card = ({
   property,
@@ -13,6 +14,7 @@ const Card = ({
   const [imgSrc, setImgSrc] = useState(
     property.photoUrlsBaseKeys?.[0] || "/placeholder.jpg"
   );
+
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-lg w-full mb-5">
       <div className="relative">
@@ -38,18 +40,30 @@ const Card = ({
             </span>
           )}
         </div>
-        {showFavoriteButton && (
+        <div className="absolute bottom-4 right-4 flex gap-2">
           <button
-            className="absolute bottom-4 right-4 bg-white hover:bg-white/90 rounded-full p-2 cursor-pointer"
-            onClick={onFavoriteToggle}
+            className="bg-white hover:bg-white/90 rounded-full p-2 cursor-pointer"
+            onClick={async () => {
+              await handleShare(property.id.toString());
+            }}
+            title="Share property"
           >
-            <Heart
-              className={`w-5 h-5 ${
-                isFavorite ? "text-red-500 fill-red-500" : "text-gray-600"
-              }`}
-            />
+            <Share2 className="w-5 h-5 text-gray-600" />
           </button>
-        )}
+          {showFavoriteButton && (
+            <button
+              className="bg-white hover:bg-white/90 rounded-full p-2 cursor-pointer"
+              onClick={onFavoriteToggle}
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart
+                className={`w-5 h-5 ${
+                  isFavorite ? "text-red-500 fill-red-500" : "text-gray-600"
+                }`}
+              />
+            </button>
+          )}
+        </div>
       </div>
       <div className="p-4">
         <h2 className="text-xl font-bold mb-1">

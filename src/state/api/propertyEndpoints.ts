@@ -101,11 +101,8 @@ export const propertyApi = baseApi.injectEndpoints({
       Pick<Lease, "propertyId">
     >({
       query: (params) => ({
-        url: "leases/getAcceptedLeases",
+        url: `properties/${params.propertyId}/leases/times`,
         method: "GET",
-        params: {
-          propertyId: params.propertyId,
-        },
       }),
     }),
     reviewLeaseProperty: build.mutation<
@@ -113,7 +110,7 @@ export const propertyApi = baseApi.injectEndpoints({
       { leaseId: number; propertyId: number; reviewRating: number }
     >({
       query: (reviewBody) => ({
-        url: "leases/reviewLeaseProperty",
+        url: `properties/${reviewBody.propertyId}/${reviewBody.leaseId}/reviews`,
         method: "POST",
         body: reviewBody,
       }),
