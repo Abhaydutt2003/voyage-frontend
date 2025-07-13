@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
 
-export default function Page({ params }: { params: { id: string } }) {
-  redirect(`/api/share/${params.id}`);
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  redirect(`/api/share/${id}`);
 }

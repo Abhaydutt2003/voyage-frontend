@@ -1,4 +1,4 @@
-import { getPropertyLight } from "@/lib/getPropertyLight";
+import { getPropertyLight } from "@/state/api/getPropertyLight";
 import { Metadata, ResolvingMetadata } from "next";
 
 type Props = {
