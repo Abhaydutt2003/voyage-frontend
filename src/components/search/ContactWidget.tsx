@@ -70,12 +70,21 @@ const ContactWidget = ({ propertyId, onOpenModal }: ContactWidgetProps) => {
         <Share2 className="mr-2 h-4 w-4" />
         Share This Property
       </Button>
-      <Button
-        className="w-full bg-primary-700 text-white hover:bg-primary-600"
-        onClick={handleButtonClick}
-      >
-        {authUser ? "Submit Application" : "Sign In to Apply"}
-      </Button>
+      {authUser ? (
+        <Button
+          className="w-full bg-primary-700 text-white hover:bg-primary-600"
+          onClick={handleButtonClick}
+        >
+          Submit Application
+        </Button>
+      ) : (
+        <Button
+          className="w-full bg-primary-700 text-white hover:bg-primary-600"
+          onClick={handleButtonClick}
+        >
+          Sign In to Apply
+        </Button>
+      )}
     </div>
   );
 };

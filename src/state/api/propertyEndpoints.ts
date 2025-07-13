@@ -101,7 +101,7 @@ export const propertyApi = baseApi.injectEndpoints({
       Pick<Lease, "propertyId">
     >({
       query: (params) => ({
-        url: `properties/${params.propertyId}/leases/times`,
+        url: `properties/${params.propertyId}/leases/times?status=Approved`,
         method: "GET",
       }),
     }),
